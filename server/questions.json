@@ -1,0 +1,274 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "Quel langage est utilisé pour le serveur dans ce projet ?",
+      "type": "qcm",
+      "answers": ["Python", "C", "JavaScript", "Java"],
+      "correct": 1,
+      "difficulty": "facile",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 2,
+      "question": "TCP est un protocole orienté connexion",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Informatique", "Réseaux"]
+    },
+    {
+      "id": 3,
+      "question": "Quelle est la capitale de la France ?",
+      "type": "text",
+      "answers": ["Paris", "paris"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Culture Générale"]
+    },
+    {
+      "id": 4,
+      "question": "Combien de bits dans un octet ?",
+      "type": "qcm",
+      "answers": ["4", "8", "16", "32"],
+      "correct": 1,
+      "difficulty": "facile",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 5,
+      "question": "Le protocole HTTP utilise le port 80 par défaut",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Informatique", "Réseaux"]
+    },
+    {
+      "id": 6,
+      "question": "Qui a inventé le World Wide Web ?",
+      "type": "qcm",
+      "answers": ["Bill Gates", "Steve Jobs", "Tim Berners-Lee", "Linus Torvalds"],
+      "correct": 2,
+      "difficulty": "moyen",
+      "themes": ["Informatique", "Histoire"]
+    },
+    {
+      "id": 7,
+      "question": "Python est un langage compilé",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 1,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 8,
+      "question": "Quel est le symbole chimique de l'or ?",
+      "type": "text",
+      "answers": ["Au", "au", "AU"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Science", "Chimie"]
+    },
+    {
+      "id": 9,
+      "question": "La complexité de la recherche binaire est O(log n)",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique", "Algorithmes"]
+    },
+    {
+      "id": 10,
+      "question": "En quelle année la Révolution française a-t-elle commencé ?",
+      "type": "qcm",
+      "answers": ["1789", "1792", "1804", "1776"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 11,
+      "question": "Git est un système de contrôle de version distribué",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 12,
+      "question": "Combien font 2 puissance 10 ?",
+      "type": "qcm",
+      "answers": ["512", "1024", "2048", "256"],
+      "correct": 1,
+      "difficulty": "facile",
+      "themes": ["Informatique", "Mathématiques"]
+    },
+    {
+      "id": 13,
+      "question": "Le langage SQL signifie Structured Query Language",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Informatique", "Bases de données"]
+    },
+    {
+      "id": 14,
+      "question": "Quel est le plus grand océan du monde ?",
+      "type": "qcm",
+      "answers": ["Atlantique", "Indien", "Pacifique", "Arctique"],
+      "correct": 2,
+      "difficulty": "facile",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 15,
+      "question": "Une pile fonctionne selon le principe LIFO",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique", "Structures de données"]
+    },
+    {
+      "id": 16,
+      "question": "Combien de joueurs dans une équipe de football ?",
+      "type": "qcm",
+      "answers": ["9", "10", "11", "12"],
+      "correct": 2,
+      "difficulty": "facile",
+      "themes": ["Sport"]
+    },
+    {
+      "id": 17,
+      "question": "Linux est basé sur Unix",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 18,
+      "question": "Quel langage utilise le framework Django ?",
+      "type": "qcm",
+      "answers": ["Ruby", "Python", "PHP", "Java"],
+      "correct": 1,
+      "difficulty": "moyen",
+      "themes": ["Informatique", "Web"]
+    },
+    {
+      "id": 19,
+      "question": "La Tour Eiffel se trouve à Paris",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Culture Générale", "Géographie"]
+    },
+    {
+      "id": 20,
+      "question": "Qui a peint la Joconde ?",
+      "type": "text",
+      "answers": ["Léonard de Vinci", "Leonard de Vinci", "Da Vinci"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Art", "Culture Générale"]
+    },
+    {
+      "id": 21,
+      "question": "Le protocole HTTPS est sécurisé",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Informatique", "Sécurité"]
+    },
+    {
+      "id": 22,
+      "question": "Quelle planète est la plus proche du Soleil ?",
+      "type": "qcm",
+      "answers": ["Vénus", "Mercure", "Mars", "Terre"],
+      "correct": 1,
+      "difficulty": "moyen",
+      "themes": ["Science", "Astronomie"]
+    },
+    {
+      "id": 23,
+      "question": "Un algorithme de tri en O(n log n) est efficace",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "difficile",
+      "themes": ["Informatique", "Algorithmes"]
+    },
+    {
+      "id": 24,
+      "question": "Combien de bits dans un IPv4 ?",
+      "type": "qcm",
+      "answers": ["16", "32", "64", "128"],
+      "correct": 1,
+      "difficulty": "moyen",
+      "themes": ["Informatique", "Réseaux"]
+    },
+    {
+      "id": 25,
+      "question": "Le mur de Berlin est tombé en 1989",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 26,
+      "question": "Quel est le langage de balisage du web ?",
+      "type": "qcm",
+      "answers": ["XML", "HTML", "CSS", "JavaScript"],
+      "correct": 1,
+      "difficulty": "facile",
+      "themes": ["Informatique", "Web"]
+    },
+    {
+      "id": 27,
+      "question": "La complexité spatiale mesure l'utilisation de la mémoire",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique", "Algorithmes"]
+    },
+    {
+      "id": 28,
+      "question": "Combien de continents sur Terre ?",
+      "type": "qcm",
+      "answers": ["5", "6", "7", "8"],
+      "correct": 2,
+      "difficulty": "facile",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 29,
+      "question": "Le WWW a été inventé au CERN",
+      "type": "boolean",
+      "answers": ["true", "false"],
+      "correct": 0,
+      "difficulty": "difficile",
+      "themes": ["Informatique", "Histoire"]
+    },
+    {
+      "id": 30,
+      "question": "Quel algorithme de tri est le plus rapide en moyenne ?",
+      "type": "qcm",
+      "answers": ["Bubble Sort", "Quick Sort", "Insertion Sort", "Selection Sort"],
+      "correct": 1,
+      "difficulty": "difficile",
+      "themes": ["Informatique", "Algorithmes"]
+    }
+  ]
+}
