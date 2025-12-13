@@ -48,7 +48,6 @@ class QuizNetGUI:
 
         chat_entry_frame = tk.Frame(self.chat_frame)
         chat_entry_frame.pack(fill="x", padx=6, pady=(4,10))
-        # use a multi-line Text widget so users have a clear area to compose messages
         self.chat_entry = tk.Text(chat_entry_frame, font=("Arial", 11), height=3)
         self.chat_entry.pack(side="left", fill="x", expand=True)
 
@@ -62,33 +61,8 @@ class QuizNetGUI:
 
         self.chat_entry.bind("<Return>", _chat_entry_enter)
 
-        self.quick_chat_frame = tk.Frame(self.container)
-        self.quick_chat_frame.pack(side="bottom", fill="x", padx=8, pady=6)
-        tk.Label(self.quick_chat_frame, text="Message rapide:", font=("Arial", 10)).pack(side="left", padx=(6,8))
-        self.quick_chat_entry = tk.Entry(self.quick_chat_frame, font=("Arial", 11))
-        self.quick_chat_entry.pack(side="left", fill="x", expand=True)
-        quick_send = tk.Button(self.quick_chat_frame, text="Envoyer", bg="#2196F3", fg="white",
-                               font=("Arial", 11), command=lambda: self._send_quick())
-        quick_send.pack(side="right", padx=(8,6))
-        self.quick_chat_entry.bind("<Return>", lambda e: self._send_quick())
-
-        self.floating_chat_btn = tk.Button(self.root, text="💬", bg="#2196F3", fg="white",
-                           font=("Arial", 12, "bold"), command=self._toggle_floating_chat)
-        self.floating_chat_btn.place_forget()
-
-        self.floating_chat_popup = tk.Frame(self.root, bg="#ffffff", relief="raised", borderwidth=1)
-        self.floating_chat_popup.place_forget()
-
-        self.floating_entry = tk.Entry(self.floating_chat_popup, font=("Arial", 10), width=30)
-        send_small = tk.Button(self.floating_chat_popup, text="Envoyer", bg="#4CAF50", fg="white",
-                       font=("Arial", 10), command=lambda: self._send_floating())
-        self.floating_entry.pack(side="left", padx=6, pady=6, expand=True, fill="x")
-        send_small.pack(side="right", padx=6, pady=6)
-        self.floating_entry.bind("<Return>", lambda e: self._send_floating())
-
         try:
             self.chat_frame.pack_forget()
-            self.quick_chat_frame.pack_forget()
         except Exception:
             pass
 
@@ -104,16 +78,10 @@ class QuizNetGUI:
     def show_chat(self):
         try:
             self.chat_frame.pack(side="right", fill="y", padx=8, pady=8)
-            self.quick_chat_frame.pack(side="bottom", fill="x", padx=8, pady=6)
             if hasattr(self, 'chat_entry'):
                 try:
                     self.chat_entry.config(state='normal')
                     self.chat_entry.focus_set()
-                except Exception:
-                    pass
-            if hasattr(self, 'quick_chat_entry'):
-                try:
-                    self.quick_chat_entry.config(state='normal')
                 except Exception:
                     pass
             try:
@@ -126,7 +94,6 @@ class QuizNetGUI:
     def hide_chat(self):
         try:
             self.chat_frame.pack_forget()
-            self.quick_chat_frame.pack_forget()
             if hasattr(self, 'chat_entry'):
                 try:
                     try:
@@ -134,12 +101,6 @@ class QuizNetGUI:
                     except Exception:
                         self.chat_entry.delete(0, tk.END)
                     self.chat_entry.config(state='disabled')
-                except Exception:
-                    pass
-            if hasattr(self, 'quick_chat_entry'):
-                try:
-                    self.quick_chat_entry.delete(0, tk.END)
-                    self.quick_chat_entry.config(state='disabled')
                 except Exception:
                     pass
         except Exception:
@@ -483,7 +444,6 @@ class QuizNetGUI:
 
         # Show chat for session screens and ensure history is requested
         self.show_chat()
-        self._enable_floating_chat()
         # Ensure chat history is requested for this session
         sid = session_data.get('sessionId') or session_data.get('id')
         if sid:
@@ -520,76 +480,21 @@ class QuizNetGUI:
             pass
 
     def _send_quick(self):
-        if not hasattr(self, 'quick_chat_entry'):
-            return
-        msg = self.quick_chat_entry.get().strip()
-        if not msg:
-            return
-        self.quick_chat_entry.delete(0, tk.END)
-        try:
-            self.client.send_chat(msg)
-        except Exception:
-            pass
+        # quick chat removed; keep for backward compatibility if called
+        return
 
+    # floating quick-chat removed; no-op placeholders kept for compatibility
     def _toggle_floating_chat(self):
-        # Only allow popup when in a session
-        sid = getattr(self.client, 'session_id', None)
-        if not sid:
-            # briefly show info to user
-            try:
-                messagebox.showinfo("Info", "Rejoignez une session pour utiliser le chat")
-            except Exception:
-                pass
-            return
-
-        # If popup visible, hide it
-        try:
-            if self.floating_chat_popup.winfo_ismapped():
-                self.floating_chat_popup.place_forget()
-                return
-        except Exception:
-            pass
-
-        # Position popup near bottom-right
-        try:
-            w = 320
-            h = 50
-            x = self.root.winfo_x() + self.root.winfo_width() - w - 20
-            y = self.root.winfo_y() + self.root.winfo_height() - h - 80
-            self.floating_chat_popup.place(x=max(10, x), y=max(10, y), width=w, height=h)
-            self.floating_entry.focus_set()
-        except Exception:
-            try:
-                self.floating_chat_popup.place(relx=0.7, rely=0.8)
-                self.floating_entry.focus_set()
-            except Exception:
-                pass
+        return
 
     def _send_floating(self):
-        if not hasattr(self, 'floating_entry'):
-            return
-        msg = self.floating_entry.get().strip()
-        if not msg:
-            return
-        self.floating_entry.delete(0, tk.END)
-        try:
-            self.client.send_chat(msg)
-        except Exception:
-            pass
+        return
 
     def _enable_floating_chat(self):
-        try:
-            # show floating button in bottom-right
-            self.floating_chat_btn.place(relx=0.95, rely=0.9, anchor='se')
-        except Exception:
-            pass
+        return
 
     def _disable_floating_chat(self):
-        try:
-            self.floating_chat_btn.place_forget()
-            self.floating_chat_popup.place_forget()
-        except Exception:
-            pass
+        return
     
     def show_countdown(self, count):
         print(f"Countdown: {count}")
@@ -973,11 +878,7 @@ class QuizNetGUI:
                             self.client.get_chat_history(sid)
                         except Exception:
                             pass
-                    # enable floating chat button
-                    try:
-                        self._enable_floating_chat()
-                    except Exception:
-                        pass
+                    pass
                 self.root.after(0, on_create)
             else:
                 msg = message.get('message', 'Erreur inconnue')
@@ -998,10 +899,7 @@ class QuizNetGUI:
                             self.client.get_chat_history(sid)
                         except Exception:
                             pass
-                    try:
-                        self._enable_floating_chat()
-                    except Exception:
-                        pass
+                    pass
                 self.root.after(0, on_join)
             else:
                 msg = message.get('message', 'Impossible de rejoindre')
