@@ -206,17 +206,10 @@ class QuizNetClient:
         })
 
     def send_chat(self, message):
-        """Envoie un message de chat à la session courante"""
-        if not self.session_id:
-            return False
-        return self.send_request("POST", "chat/send", {"message": message})
-
-    def get_chat_history(self, session_id=None):
-        """Demande l'historique de chat pour la session (utilise la session courante si None)"""
-        sid = session_id if session_id is not None else self.session_id
-        if not sid:
-            return False
-        return self.send_request("GET", "chat/history", {"sessionId": sid})
+        """Envoie un message de chat pour la session courante"""
+        return self.send_request("POST", "chat/send", {
+            "message": message
+        })
     
     def answer_question(self, answer, response_time):
         """Envoie une réponse à une question"""

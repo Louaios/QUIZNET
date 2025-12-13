@@ -19,10 +19,6 @@
 #define MAX_SESSION_NAME 32
 #define MAX_PLAYER_NAME 32
 
-#define MAX_CHAT_HISTORY 200
-#define MAX_CHAT_MSG_LENGTH 512
-#define MAX_TIMESTAMP_LEN 64
-
 typedef struct {
     char pseudo[MAX_PLAYER_NAME];
     int sock;
@@ -45,13 +41,6 @@ typedef struct Session {
     Player players[MAX_PLAYERS];
     Question questions[100];
     pthread_mutex_t lock;
-  /* Chat history */
-  struct {
-    char sender[MAX_PLAYER_NAME];
-    char message[MAX_CHAT_MSG_LENGTH];
-    char timestamp[MAX_TIMESTAMP_LEN];
-  } chatHistory[MAX_CHAT_HISTORY];
-  int chatCount;
 } Session;
 
 Session* create_session_full(const char *name, const char *mode,

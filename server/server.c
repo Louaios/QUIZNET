@@ -178,17 +178,15 @@ void* client_handler(void *arg) {
             }
         }
         else if (strcmp(action, "chat/send") == 0) {
-            if (handle_chat_send(request, current_session_id, sock, username)) {
+            // Route chat/send -> broadcast chat message
+            if (handle_chat_send(request, current_session_id, sock)) {
                 no_response = 1;
             } else {
                 response = cJSON_CreateObject();
                 cJSON_AddStringToObject(response, "action", action);
                 cJSON_AddStringToObject(response, "statut", "400");
-                cJSON_AddStringToObject(response, "message", "cannot send chat message");
+                cJSON_AddStringToObject(response, "message", "cannot send chat");
             }
-        }
-        else if (strcmp(action, "chat/history") == 0) {
-            response = handle_chat_history(request, current_session_id);
         }
         else {
             response = cJSON_CreateObject();

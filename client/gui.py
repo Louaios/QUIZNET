@@ -13,12 +13,12 @@ class QuizNetGUI:
     def __init__(self):
         self.client = QuizNetClient()
         self.client.set_callback(self.handle_server_message)
-
+        
         self.root = tk.Tk()
         self.root.title("QuizNet Client")
         self.root.geometry("800x600")
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
-
+        
         self.current_screen = None
         self.is_creator = False
         self.current_question = None
@@ -28,86 +28,78 @@ class QuizNetGUI:
         self.current_mode = "solo"
         self.time_limit = 30
         self.available_sessions = []
-
+        
         self.container = tk.Frame(self.root)
         self.container.pack(fill="both", expand=True)
-
-        # Chat persistante
-        self.chat_frame = tk.Frame(self.container, width=266)
-        self.chat_frame.pack(side="right", fill="y", padx=8, pady=8)
-
-        tk.Label(self.chat_frame, text="Chat de la session", font=("Arial", 12, "bold")).pack(pady=(10,5))
-        chat_box_frame = tk.Frame(self.chat_frame)
-        chat_box_frame.pack(fill="both", expand=True, padx=6, pady=4)
-
-        self.chat_listbox = tk.Listbox(chat_box_frame, width=36, height=30, font=("Arial", 11))
-        self.chat_listbox.pack(side="left", fill="both", expand=True)
-        chat_scroll = tk.Scrollbar(chat_box_frame, orient=tk.VERTICAL, command=self.chat_listbox.yview)
-        chat_scroll.pack(side="right", fill="y")
-        self.chat_listbox.config(yscrollcommand=chat_scroll.set)
-
-        chat_entry_frame = tk.Frame(self.chat_frame)
-        chat_entry_frame.pack(fill="x", padx=6, pady=(4,10))
-        self.chat_entry = tk.Text(chat_entry_frame, font=("Arial", 11), height=3)
-        self.chat_entry.pack(side="left", fill="x", expand=True)
-
-        send_btn = tk.Button(chat_entry_frame, text="Envoyer", bg="#2196F3", fg="white",
-                             font=("Arial", 11), command=lambda: self._send_chat())
-        send_btn.pack(side="right", padx=(6,0))
-
-        def _chat_entry_enter(event):
-            self._send_chat()
-            return 'break'
-
-        self.chat_entry.bind("<Return>", _chat_entry_enter)
-
-        try:
-            self.chat_frame.pack_forget()
-        except Exception:
-            pass
-
+        
         self.show_discovery_screen()
     
     def clear_screen(self):
         for widget in self.container.winfo_children():
-            # chat persistante
-            if hasattr(self, 'chat_frame') and widget is self.chat_frame:
-                continue
             widget.destroy()
 
-    def show_chat(self):
-        try:
-            self.chat_frame.pack(side="right", fill="y", padx=8, pady=8)
-            if hasattr(self, 'chat_entry'):
-                try:
-                    self.chat_entry.config(state='normal')
-                    self.chat_entry.focus_set()
-                except Exception:
-                    pass
+    def open_chat_window(self):
+        if hasattr(self, 'chat_window') and self.chat_window.winfo_exists():
             try:
-                self.chat_frame.lift()
+                self.chat_window.deiconify()
+                self.chat_window.lift()
             except Exception:
                 pass
-        except Exception:
+            return
+
+        self.chat_window = tk.Toplevel(self.root)
+        self.chat_window.title("Chat - Session")
+        self.chat_window.geometry("360x420")
+
+        chat_frame = tk.Frame(self.chat_window)
+        chat_frame.pack(fill="both", expand=True, padx=8, pady=8)
+
+        self.chat_display = tk.Text(chat_frame, state='disabled', wrap='word', height=18)
+        self.chat_display.pack(side='left', fill='both', expand=True)
+
+        scrollbar = ttk.Scrollbar(chat_frame, command=self.chat_display.yview)
+        scrollbar.pack(side='right', fill='y')
+        self.chat_display['yscrollcommand'] = scrollbar.set
+
+        entry_frame = tk.Frame(self.chat_window)
+        entry_frame.pack(fill='x', padx=8, pady=(0,8))
+
+        self.chat_entry = tk.Entry(entry_frame, font=("Arial", 11))
+        self.chat_entry.pack(side='left', fill='x', expand=True, padx=(0,8))
+        self.chat_entry.bind('<Return>', lambda e: self._chat_send())
+
+        send_btn = tk.Button(entry_frame, text="Envoyer", command=self._chat_send,
+                             bg="#2196F3", fg="white", font=("Arial", 11), width=10)
+        send_btn.pack(side='right')
+
+        self.chat_window.protocol("WM_DELETE_WINDOW", lambda: self.chat_window.withdraw())
+
+    def append_chat_message(self, pseudo, message, timestamp=None):
+        if not hasattr(self, 'chat_display'):
+            return
+        if not timestamp:
+            timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+        try:
+            self.chat_display.config(state='normal')
+            self.chat_display.insert(tk.END, f"[{timestamp}] {pseudo}: {message}\n")
+            self.chat_display.see(tk.END)
+            self.chat_display.config(state='disabled')
+        except tk.TclError:
             pass
 
-    def hide_chat(self):
-        try:
-            self.chat_frame.pack_forget()
-            if hasattr(self, 'chat_entry'):
-                try:
-                    try:
-                        self.chat_entry.delete("1.0", tk.END)
-                    except Exception:
-                        self.chat_entry.delete(0, tk.END)
-                    self.chat_entry.config(state='disabled')
-                except Exception:
-                    pass
-        except Exception:
-            pass
+    def _chat_send(self):
+        if not hasattr(self, 'chat_entry'): return
+        text = self.chat_entry.get().strip()
+        if not text: return
+        self.chat_entry.delete(0, tk.END)
+
+        def _call():
+            self.client.send_chat(text)
+
+        threading.Thread(target=_call, daemon=True).start()
     
     def show_discovery_screen(self):
-        self.hide_chat()
         self.clear_screen()
         
         frame = tk.Frame(self.container)
@@ -127,63 +119,61 @@ class QuizNetGUI:
         threading.Thread(target=discover, daemon=True).start()
     
     def show_server_list(self, servers):
-        self.hide_chat()
         self.clear_screen()
-
+        
         frame = tk.Frame(self.container)
         frame.pack(expand=True)
-
+        
         tk.Label(frame, text="Serveurs disponibles", font=("Arial", 20, "bold")).pack(pady=20)
-
+        
         if not servers:
             tk.Label(frame, text="Aucun serveur trouvé", fg="red").pack(pady=10)
-
+            
             manual_frame = tk.Frame(frame)
             manual_frame.pack(pady=20)
-
+            
             tk.Label(manual_frame, text="Connexion manuelle:", font=("Arial", 12, "bold")).pack()
             tk.Label(manual_frame, text="Adresse IP du serveur:").pack()
             ip_entry = tk.Entry(manual_frame, width=20, font=("Arial", 11))
             ip_entry.pack(pady=5)
             ip_entry.insert(0, "127.0.0.1")
-
+            
             def connect_manual():
                 ip = ip_entry.get().strip()
                 if ip and self.client.connect_to_server(ip, 5556):
                     self.show_login_screen()
                 else:
                     messagebox.showerror("Erreur", "Impossible de se connecter au serveur")
-
+            
             tk.Button(manual_frame, text="Se connecter", command=connect_manual,
                      bg="#FF9800", fg="white", font=("Arial", 12), width=20).pack(pady=10)
-
+            
             tk.Button(frame, text="Réessayer la découverte", command=self.show_discovery_screen,
                      bg="#2196F3", fg="white", font=("Arial", 12), width=20).pack(pady=10)
             return
-
+        
         listbox = tk.Listbox(frame, width=50, height=10, font=("Arial", 12))
         listbox.pack(pady=10)
-
+        
         for server in servers:
             listbox.insert(tk.END, f"{server['name']} ({server['ip']}:{server['port']})")
-
+        
         def connect():
             selection = listbox.curselection()
             if not selection:
                 messagebox.showwarning("Sélection", "Veuillez sélectionner un serveur")
                 return
-
+            
             server = servers[selection[0]]
             if self.client.connect_to_server(server['ip'], server['port']):
                 self.show_login_screen()
             else:
                 messagebox.showerror("Erreur", "Impossible de se connecter au serveur")
-
-        tk.Button(frame, text="Se connecter", command=connect,
+        
+        tk.Button(frame, text="Se connecter", command=connect, 
                  bg="#4CAF50", fg="white", font=("Arial", 12), width=20).pack(pady=10)
     
     def show_login_screen(self):
-        self.hide_chat()
         self.clear_screen()
         
         frame = tk.Frame(self.container)
@@ -231,7 +221,6 @@ class QuizNetGUI:
                  bg="#4CAF50", fg="white", font=("Arial", 12), width=15).pack(side="left", padx=10)
     
     def show_main_menu(self):
-        self.hide_chat()
         self.clear_screen()
         
         frame = tk.Frame(self.container)
@@ -247,9 +236,14 @@ class QuizNetGUI:
                  bg="#2196F3", fg="white", font=("Arial", 14), width=btn_width).pack(pady=10)
         tk.Button(frame, text="Quitter", command=self.on_closing,
                  bg="#f44336", fg="white", font=("Arial", 14), width=btn_width).pack(pady=10)
+        if hasattr(self, 'chat_window'):
+            try:
+                self.chat_window.destroy()
+            except Exception:
+                pass
+            delattr(self, 'chat_window')
     
     def show_create_session(self):
-        self.hide_chat()
         self.clear_screen()
         
         frame = tk.Frame(self.container)
@@ -339,7 +333,6 @@ class QuizNetGUI:
                  bg="#757575", fg="white", font=("Arial", 12), width=15).pack(side="left", padx=10)
     
     def show_sessions_list(self):
-        self.hide_chat()
         self.clear_screen()
         
         frame = tk.Frame(self.container)
@@ -409,96 +402,54 @@ class QuizNetGUI:
     
     def show_waiting_room(self, session_data):
         self.clear_screen()
-
+        
         frame = tk.Frame(self.container)
         frame.pack(expand=True)
-
+        
         tk.Label(frame, text="Salle d'attente", font=("Arial", 24, "bold")).pack(pady=20)
-
+        
         info_frame = tk.Frame(frame, bg="#f0f0f0", padx=20, pady=20)
         info_frame.pack(pady=10, fill="x", padx=50)
-
-        tk.Label(info_frame, text=f"Mode: {session_data.get('mode', 'N/A').upper()}",
-                 font=("Arial", 12), bg="#f0f0f0").pack(anchor="w")
-
+        
+        tk.Label(info_frame, text=f"Mode: {session_data.get('mode', 'N/A').upper()}", 
+                font=("Arial", 12), bg="#f0f0f0").pack(anchor="w")
+        
         tk.Label(frame, text="Joueurs connectés:", font=("Arial", 14, "bold")).pack(pady=(20, 10))
-
+        
         players_listbox = tk.Listbox(frame, font=("Arial", 12), width=40, height=6)
         players_listbox.pack(pady=10)
         self.players_listbox = players_listbox
-
+        
         if 'players' in session_data:
             for player in session_data['players']:
                 players_listbox.insert(tk.END, f"🎮 {player}")
-
+        
         if session_data.get('isCreator'):
             self.is_creator = True
-            self.start_button = tk.Button(frame, text="Démarrer la partie",
+            self.start_button = tk.Button(frame, text="Démarrer la partie", 
                                           command=self.start_game,
-                                          bg="#4CAF50", fg="white",
+                                          bg="#4CAF50", fg="white", 
                                           font=("Arial", 14), width=20)
             self.start_button.pack(pady=20)
         else:
-            tk.Label(frame, text="En attente du créateur...",
+            tk.Label(frame, text="En attente du créateur...", 
                     font=("Arial", 12), fg="gray").pack(pady=20)
 
-        # Show chat for session screens and ensure history is requested
-        self.show_chat()
-        # Ensure chat history is requested for this session
-        sid = session_data.get('sessionId') or session_data.get('id')
-        if sid:
-            try:
-                self.client.session_id = sid
-                self.client.get_chat_history(sid)
-            except Exception:
-                pass
-
-    def start_game(self):
-        if hasattr(self, 'start_button'):
-            self.start_button.config(state='disabled', text="Démarrage en cours...")
-        self.client.start_session()
-
-    def _send_chat(self):
-        if not hasattr(self, 'chat_entry'):
-            return
         try:
-            msg = self.chat_entry.get("1.0", "end").strip()
-        except Exception:
-            return
-        if not msg:
-            return
-        try:
-            self.chat_entry.delete("1.0", tk.END)
-        except Exception:
-            try:
-                self.chat_entry.delete(0, tk.END)
-            except Exception:
-                pass
-        try:
-            self.client.send_chat(msg)
+            self.open_chat_window()
         except Exception:
             pass
-
-    def _send_quick(self):
-        # quick chat removed; keep for backward compatibility if called
-        return
-
-    # floating quick-chat removed; no-op placeholders kept for compatibility
-    def _toggle_floating_chat(self):
-        return
-
-    def _send_floating(self):
-        return
-
-    def _enable_floating_chat(self):
-        return
-
-    def _disable_floating_chat(self):
-        return
+    
+    def start_game(self):
+        print("Démarrage de la partie...")
+        
+        if hasattr(self, 'start_button'):
+            self.start_button.config(state='disabled', text="Démarrage en cours...")
+        
+        self.client.start_session()
     
     def show_countdown(self, count):
         print(f"Countdown: {count}")
-        self.show_chat()
         self.clear_screen()
         
         if hasattr(self, 'countdown_timer'):
@@ -524,7 +475,6 @@ class QuizNetGUI:
         if hasattr(self, 'question_timer'):
             self.root.after_cancel(self.question_timer)
         
-        self.show_chat()
         self.clear_screen()
         self.current_question = question_data
         self.question_start_time = time.time()
@@ -539,7 +489,6 @@ class QuizNetGUI:
                 text=f"Question {question_data.get('questionNum', '?')}/{question_data.get('totalQuestions', '?')}",
                 font=("Arial", 14, "bold")).pack(side="left")
         
-        # Affichage des vies en mode battle
         if self.current_mode == "battle":
             lives_frame = tk.Frame(header_frame, bg="#ffebee", padx=10, pady=5)
             lives_frame.pack(side="left", padx=20)
@@ -559,7 +508,6 @@ class QuizNetGUI:
         tk.Label(question_frame, text=question_data.get('question', 'Question'), 
                 font=("Arial", 16, "bold"), bg="#e3f2fd", wraplength=700).pack()
         
-        # Boutons de jokers
         if self.jokers.get("fifty", 0) > 0 or self.jokers.get("skip", 0) > 0:
             jokers_frame = tk.Frame(frame, bg="#FFF3E0", padx=10, pady=10)
             jokers_frame.pack(fill="x", pady=10)
@@ -569,7 +517,9 @@ class QuizNetGUI:
             
             if self.jokers.get("fifty", 0) > 0:
                 def use_fifty():
-                    self.client.use_joker("fifty")
+                    def _call():
+                        self.client.use_joker("fifty")
+                    threading.Thread(target=_call, daemon=True).start()
                     self.jokers["fifty"] = 0
                 
                 tk.Button(jokers_frame, text="50/50", command=use_fifty,
@@ -579,16 +529,17 @@ class QuizNetGUI:
                 def use_skip():
                     print("Utilisation du joker skip...")
                     
-                    # Annuler le timer actuel
                     if hasattr(self, 'question_timer'):
                         self.root.after_cancel(self.question_timer)
                         delattr(self, 'question_timer')
                     
-                    # Réinitialiser le temps
                     self.question_start_time = None
                     
-                    # Envoyer au serveur
-                    self.client.use_joker("skip")
+                    self.show_waiting_results()
+
+                    def _call():
+                        self.client.use_joker("skip")
+                    threading.Thread(target=_call, daemon=True).start()
                     self.jokers["skip"] = 0
                 
                 tk.Button(jokers_frame, text="⏭️ Passer", command=use_skip,
@@ -869,17 +820,7 @@ class QuizNetGUI:
                 self.jokers = message.get('jokers', {"fifty": 1, "skip": 1})
                 if 'lives' in message:
                     self.lives = message['lives']
-                def on_create(m=message):
-                    self.show_waiting_room(m)
-                    sid = m.get('sessionId') or m.get('id')
-                    if sid:
-                        self.client.session_id = sid
-                        try:
-                            self.client.get_chat_history(sid)
-                        except Exception:
-                            pass
-                    pass
-                self.root.after(0, on_create)
+                self.root.after(0, lambda m=message: self.show_waiting_room(m))
             else:
                 msg = message.get('message', 'Erreur inconnue')
                 self.root.after(0, lambda m=msg: messagebox.showerror("Erreur", m))
@@ -890,17 +831,7 @@ class QuizNetGUI:
                 self.jokers = message.get('jokers', {"fifty": 1, "skip": 1})
                 if 'lives' in message:
                     self.lives = message['lives']
-                def on_join(m=message):
-                    self.show_waiting_room(m)
-                    sid = m.get('sessionId') or m.get('id')
-                    if sid:
-                        self.client.session_id = sid
-                        try:
-                            self.client.get_chat_history(sid)
-                        except Exception:
-                            pass
-                    pass
-                self.root.after(0, on_join)
+                self.root.after(0, lambda m=message: self.show_waiting_room(m))
             else:
                 msg = message.get('message', 'Impossible de rejoindre')
                 self.root.after(0, lambda m=msg: messagebox.showerror("Erreur", m))
@@ -918,40 +849,6 @@ class QuizNetGUI:
             countdown = message.get('countdown', 3)
             print(f"Session démarrée ! Countdown: {countdown}")
             self.root.after(0, lambda c=countdown: self.show_countdown(c))
-
-        elif action == 'chat/new':
-            sender = message.get('sender', 'Unknown')
-            text = message.get('message', '')
-            ts = message.get('timestamp', '')
-
-            def append_msg():
-                if hasattr(self, 'chat_listbox'):
-                    display = f"[{ts}] {sender}: {text}" if ts else f"{sender}: {text}"
-                    self.chat_listbox.insert(tk.END, display)
-                    self.chat_listbox.yview_moveto(1.0)
-
-            self.root.after(0, append_msg)
-
-        elif action == 'chat/history':
-            if message.get('statut') == '200':
-                msgs = message.get('messages', [])
-
-                def populate():
-                    if not hasattr(self, 'chat_listbox'):
-                        return
-                    self.chat_listbox.delete(0, tk.END)
-                    for m in msgs:
-                        sender = m.get('sender', 'Unknown')
-                        text = m.get('message', '')
-                        ts = m.get('timestamp', '')
-                        display = f"[{ts}] {sender}: {text}" if ts else f"{sender}: {text}"
-                        self.chat_listbox.insert(tk.END, display)
-                    self.chat_listbox.yview_moveto(1.0)
-
-                self.root.after(0, populate)
-            else:
-                # no history / error
-                pass
         
         elif action == 'question/new':
             print(f"Nouvelle question reçue")
@@ -988,6 +885,16 @@ class QuizNetGUI:
                 msg = message.get('message', 'Joker non disponible')
                 self.root.after(0, lambda m=msg: messagebox.showerror("Erreur", m))
 
+        elif action == 'chat/message':
+            pseudo = message.get('pseudo', 'Unknown')
+            text = message.get('message', '')
+            timestamp = message.get('timestamp', None)
+            self.root.after(0, lambda p=pseudo, t=text, ts=timestamp: self.append_chat_message(p, t, ts))
+
+        elif action == 'chat/sent':
+            # optional ack from server, ignore or could show status
+            pass
+
 
         elif action == 'session/player-eliminated':
             eliminated_player = message.get('pseudo', 'Un joueur')
@@ -999,6 +906,12 @@ class QuizNetGUI:
             self.root.after(0, lambda m=message: self.show_final_results(m))
     
     def on_closing(self):
+        # Destroy chat window if present
+        if hasattr(self, 'chat_window'):
+            try:
+                self.chat_window.destroy()
+            except Exception:
+                pass
         self.client.disconnect()
         self.root.destroy()
     

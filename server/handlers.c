@@ -7,7 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
-#include <time.h>
 
 
 // ============================================================================
@@ -404,109 +403,6 @@ void send_question_results(Session *s, int correct_answer_index) {
 
 
 // ============================================================================
-// HANDLER : Envoyer un message de chat (broadcast to session)
-// ============================================================================
-int handle_chat_send(cJSON *request, int session_id, int sock, char *username) {
-    (void)sock;
-    if (!request) return 0;
-
-    cJSON *msg = cJSON_GetObjectItem(request, "message");
-    if (!msg || !cJSON_IsString(msg)) return 0;
-
-    Session *s = NULL;
-    pthread_mutex_lock(&sessions_lock);
-    for (int i = 0; i < MAX_SESSIONS; i++) {
-        if (global_sessions[i].sessionId == session_id) {
-            s = &global_sessions[i];
-            break;
-        }
-    }
-    pthread_mutex_unlock(&sessions_lock);
-
-    if (!s) return 0;
-
-    char ts[MAX_TIMESTAMP_LEN] = {0};
-    time_t now = time(NULL);
-    struct tm tmv_buf;
-    struct tm *tmv = localtime(&now);
-    if (!tmv) {
-        tmv = &tmv_buf;
-        memset(tmv, 0, sizeof(tmv_buf));
-    }
-    strftime(ts, sizeof(ts), "%Y-%m-%dT%H:%M:%S%z", tmv);
-
-    pthread_mutex_lock(&s->lock);
-
-    if (s->chatCount >= MAX_CHAT_HISTORY) {
-        memmove(&s->chatHistory[0], &s->chatHistory[1], (MAX_CHAT_HISTORY - 1) * sizeof(s->chatHistory[0]));
-        s->chatCount = MAX_CHAT_HISTORY - 1;
-    }
-
-    int idx = s->chatCount;
-    strncpy(s->chatHistory[idx].sender, username, MAX_PLAYER_NAME - 1);
-    strncpy(s->chatHistory[idx].message, msg->valuestring, MAX_CHAT_MSG_LENGTH - 1);
-    strncpy(s->chatHistory[idx].timestamp, ts, MAX_TIMESTAMP_LEN - 1);
-    s->chatCount++;
-
-    cJSON *notification = cJSON_CreateObject();
-    cJSON_AddStringToObject(notification, "action", "chat/new");
-    cJSON_AddStringToObject(notification, "sender", s->chatHistory[idx].sender);
-    cJSON_AddStringToObject(notification, "message", s->chatHistory[idx].message);
-    cJSON_AddStringToObject(notification, "timestamp", s->chatHistory[idx].timestamp);
-
-    for (int i = 0; i < s->playerCount; i++) {
-        send_json_to_socket(s->players[i].sock, notification);
-    }
-
-    cJSON_Delete(notification);
-    pthread_mutex_unlock(&s->lock);
-
-    return 1;
-}
-
-
-// ============================================================================
-// HANDLER : Récupérer l'historique du chat pour une session
-// ============================================================================
-cJSON* handle_chat_history(cJSON *request, int session_id) {
-    (void)request;
-    cJSON *response = cJSON_CreateObject();
-    cJSON_AddStringToObject(response, "action", "chat/history");
-
-    Session *s = NULL;
-    pthread_mutex_lock(&sessions_lock);
-    for (int i = 0; i < MAX_SESSIONS; i++) {
-        if (global_sessions[i].sessionId == session_id) {
-            s = &global_sessions[i];
-            break;
-        }
-    }
-    pthread_mutex_unlock(&sessions_lock);
-
-    if (!s) {
-        cJSON_AddStringToObject(response, "statut", "404");
-        cJSON_AddStringToObject(response, "message", "session not found");
-        return response;
-    }
-
-    pthread_mutex_lock(&s->lock);
-    cJSON *arr = cJSON_CreateArray();
-    for (int i = 0; i < s->chatCount; i++) {
-        cJSON *m = cJSON_CreateObject();
-        cJSON_AddStringToObject(m, "sender", s->chatHistory[i].sender);
-        cJSON_AddStringToObject(m, "message", s->chatHistory[i].message);
-        cJSON_AddStringToObject(m, "timestamp", s->chatHistory[i].timestamp);
-        cJSON_AddItemToArray(arr, m);
-    }
-    pthread_mutex_unlock(&s->lock);
-
-    cJSON_AddStringToObject(response, "statut", "200");
-    cJSON_AddItemToObject(response, "messages", arr);
-    return response;
-}
-
-
-// ============================================================================
 // HANDLER : Réponse à une question
 // 🔧 CORRECTION : sleep retiré, vérifications renforcées
 // ============================================================================
@@ -841,4 +737,68 @@ void send_next_question(Session *s, int playerIndex) {
     }
     
     cJSON_Delete(msg);
+}
+
+
+// ============================================================================
+// HANDLER : Envoi d'un message chat dans une session
+// ============================================================================
+int handle_chat_send(cJSON *request, int session_id, int sock) {
+    cJSON *msg_json = cJSON_GetObjectItem(request, "message");
+    if (!msg_json || !cJSON_IsString(msg_json)) return 0;
+
+    const char *message = msg_json->valuestring;
+
+    Session *current_session = NULL;
+    pthread_mutex_lock(&sessions_lock);
+    for (int i = 0; i < MAX_SESSIONS; i++) {
+        if (global_sessions[i].sessionId == session_id) {
+            current_session = &global_sessions[i];
+            break;
+        }
+    }
+    pthread_mutex_unlock(&sessions_lock);
+
+    if (!current_session) return 0;
+
+    int player_idx = -1;
+    for (int i = 0; i < current_session->playerCount; i++) {
+        if (current_session->players[i].sock == sock) {
+            player_idx = i;
+            break;
+        }
+    }
+
+    if (player_idx == -1) return 0;
+
+    const char *pseudo = current_session->players[player_idx].pseudo;
+
+    // Build broadcast message
+    cJSON *broadcast = cJSON_CreateObject();
+    cJSON_AddStringToObject(broadcast, "action", "chat/message");
+    cJSON_AddStringToObject(broadcast, "pseudo", pseudo);
+    cJSON_AddStringToObject(broadcast, "message", message);
+
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char ts[64] = {0};
+    if (tm) strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", tm);
+    cJSON_AddStringToObject(broadcast, "timestamp", ts);
+
+    // Send to all players in the session
+    for (int i = 0; i < current_session->playerCount; i++) {
+        send_json_to_socket(current_session->players[i].sock, broadcast);
+    }
+
+    cJSON_Delete(broadcast);
+
+    // Send ACK to sender
+    cJSON *ack = cJSON_CreateObject();
+    cJSON_AddStringToObject(ack, "action", "chat/sent");
+    cJSON_AddStringToObject(ack, "statut", "200");
+    send_json_to_socket(sock, ack);
+    cJSON_Delete(ack);
+
+    log_info("Chat message from %s broadcasted in session %d", pseudo, session_id);
+    return 1;
 }

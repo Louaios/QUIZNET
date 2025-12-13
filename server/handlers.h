@@ -19,10 +19,7 @@ cJSON* handle_session_join(cJSON *request, char *username, int sock, int *sessio
 int handle_session_start(int session_id);
 int handle_question_answer(cJSON *request, int session_id, int sock);
 int handle_joker_use(cJSON *request, int session_id, int sock);
-
-// Chat handlers
-int handle_chat_send(cJSON *request, int session_id, int sock, char *username);
-cJSON* handle_chat_history(cJSON *request, int session_id);
+int handle_chat_send(cJSON *request, int session_id, int sock);
 
 // Fonction utilitaire pour envoyer du JSON
 void send_json_to_socket(int sock, cJSON *json);
