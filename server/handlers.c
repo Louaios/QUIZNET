@@ -149,7 +149,6 @@ cJSON* handle_session_create(cJSON *request, char *username, int sock, int *sess
             else new_session->difficulty = 2;
             
             new_session->isStarted = 0;
-            new_session->currentQuestionIndex = 0;
             new_session->playerCount = 0;
             pthread_mutex_init(&new_session->lock, NULL);
             
@@ -346,8 +345,10 @@ int handle_session_start(int session_id) {
     }
     cJSON_Delete(start_msg);
     
-    log_info("Sending first question");
-    send_next_question(current_session, -1);
+    log_info("Sending first question to each player");
+    for (int i = 0; i < current_session->playerCount; i++) {
+        send_next_question(current_session, i);
+    }
     
     return 1;
 }
@@ -422,19 +423,28 @@ int handle_question_answer(cJSON *request, int session_id, int sock) {
         return 0;
     }
     
-    // 🔧 CORRECTION : Vérifier que l'index est valide
-    if (current_session->currentQuestionIndex < 0 ||
-        current_session->currentQuestionIndex >= current_session->nbQuestions) {
-        log_error("Invalid question index: %d", current_session->currentQuestionIndex);
-        return 0;
-    }
-    
     cJSON *answer_json = cJSON_GetObjectItem(request, "answer");
     if (!answer_json) {
         return 0;
     }
     
-    Question *current_q = &current_session->questions[current_session->currentQuestionIndex];
+    int player_idx = -1;
+    for (int i = 0; i < current_session->playerCount; i++) {
+        if (current_session->players[i].sock == sock) {
+            player_idx = i;
+            break;
+        }
+    }
+    if (player_idx == -1) return 0;
+
+    int player_q_index = current_session->players[player_idx].currentQuestionIndex;
+    if (player_q_index < 0 || player_q_index >= current_session->nbQuestions) {
+        log_error("Invalid player question index: %d for player %s", player_q_index,
+                  current_session->players[player_idx].pseudo);
+        return 0;
+    }
+
+    Question *current_q = &current_session->questions[player_q_index];
     int is_correct = 0;
     
     if (cJSON_IsNumber(answer_json)) {
@@ -460,15 +470,7 @@ int handle_question_answer(cJSON *request, int session_id, int sock) {
     int bonus_points[] = {1, 3, 6};
     int points = 0;
     
-    int player_idx = -1;
-    for (int i = 0; i < current_session->playerCount; i++) {
-        if (current_session->players[i].sock == sock) {
-            player_idx = i;
-            break;
-        }
-    }
     
-    if (player_idx == -1) return 0;
     
     if (strcmp(current_session->mode, "battle") == 0) {
         if (current_session->players[player_idx].isEliminated) {
@@ -517,7 +519,7 @@ int handle_question_answer(cJSON *request, int session_id, int sock) {
         }
     }
     
-    current_session->players[player_idx].score += points;
+        current_session->players[player_idx].score += points;
     log_info("Player %s scored %d points (total: %d)", 
             current_session->players[player_idx].pseudo, 
             points, 
@@ -528,7 +530,8 @@ int handle_question_answer(cJSON *request, int session_id, int sock) {
     // 🔧 CORRECTION : sleep retiré (cause de latence)
     // sleep(3);  <- ENLEVÉ
     
-    current_session->currentQuestionIndex++;
+    /* advance only this player's question index */
+    current_session->players[player_idx].currentQuestionIndex++;
     
     if (strcmp(current_session->mode, "battle") == 0) {
         int remaining = 0;
@@ -544,9 +547,24 @@ int handle_question_answer(cJSON *request, int session_id, int sock) {
         }
     }
     
-    if (current_session->currentQuestionIndex < current_session->nbQuestions) {
-        log_info("Sending next question");
-        send_next_question(current_session, -1);
+    /* If all players finished their questions, end the session */
+    int all_finished = 1;
+    for (int i = 0; i < current_session->playerCount; i++) {
+        if (!current_session->players[i].isEliminated &&
+            current_session->players[i].currentQuestionIndex < current_session->nbQuestions) {
+            all_finished = 0;
+            break;
+        }
+    }
+
+    if (all_finished) {
+        goto send_final_results;
+    }
+
+    /* Send next question only to this player if they still have questions */
+    if (current_session->players[player_idx].currentQuestionIndex < current_session->nbQuestions) {
+        log_info("Sending next question to player %s", current_session->players[player_idx].pseudo);
+        send_next_question(current_session, player_idx);
         return 1;
     }
     
@@ -646,23 +664,25 @@ int handle_joker_use(cJSON *request, int session_id, int sock) {
         }
         
         current_session->players[player_idx].jokersUsed[JOKER_SKIP] = 1;
-        
+
+        int before = current_session->players[player_idx].currentQuestionIndex;
         log_info("Player %s used skip, current question: %d", 
                 current_session->players[player_idx].pseudo,
-                current_session->currentQuestionIndex + 1);
-        
-        // Incrémenter la question
-        current_session->currentQuestionIndex++;
-        
-        log_info("Skipped to question: %d (total: %d)", 
-                current_session->currentQuestionIndex + 1,
+                before + 1);
+
+        /* advance only this player's index */
+        current_session->players[player_idx].currentQuestionIndex++;
+        int after = current_session->players[player_idx].currentQuestionIndex;
+
+        log_info("Player %s skipped to question: %d (total: %d)", 
+                current_session->players[player_idx].pseudo,
+                after + 1,
                 current_session->nbQuestions);
-        
-        // Envoyer la nouvelle question immédiatement
-        if (current_session->currentQuestionIndex < current_session->nbQuestions) {
-            send_next_question(current_session, -1);
+
+        if (after < current_session->nbQuestions) {
+            send_next_question(current_session, player_idx);
         } else {
-            log_info("No more questions after skip");
+            log_info("Player %s has no more questions after skip", current_session->players[player_idx].pseudo);
         }
         
         return 1;
@@ -694,49 +714,82 @@ int handle_joker_use(cJSON *request, int session_id, int sock) {
 // FONCTION : Envoyer la prochaine question
 // ============================================================================
 void send_next_question(Session *s, int playerIndex) {
-    if (s->currentQuestionIndex >= s->nbQuestions) return;
-    
-    Question *q = &s->questions[s->currentQuestionIndex];
-    
-    cJSON *msg = cJSON_CreateObject();
-    cJSON_AddStringToObject(msg, "action", "question/new");
-    cJSON_AddNumberToObject(msg, "questionNum", s->currentQuestionIndex + 1);
-    cJSON_AddNumberToObject(msg, "totalQuestions", s->nbQuestions);
-    
-    const char *type = "qcm";
-    if (strlen(q->answers[1]) == 0 || strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
-        if (strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
-            type = "boolean";
-        } else {
-            type = "text";
-        }
-    }
-    
-    cJSON_AddStringToObject(msg, "type", type);
-    
-    if (strcmp(type, "qcm") == 0) {
-        cJSON *answers = cJSON_CreateArray();
-        for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
-            cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));
-        }
-        cJSON_AddItemToObject(msg, "answers", answers);
-    }
-    
-    const char *diff[] = {"facile", "moyen", "difficile"};
-    cJSON_AddStringToObject(msg, "difficulty", diff[q->difficulty]);
-    cJSON_AddStringToObject(msg, "question", q->question);
-    
-    log_info("Sending question %d: %s", s->currentQuestionIndex + 1, q->question);
+    cJSON *msg = NULL;
     
     if (playerIndex >= 0) {
-        send_json_to_socket(s->players[playerIndex].sock, msg);
-    } else {
-        for (int i = 0; i < s->playerCount; i++) {
-            send_json_to_socket(s->players[i].sock, msg);
+        if (playerIndex < 0 || playerIndex >= s->playerCount) return;
+        int idx = s->players[playerIndex].currentQuestionIndex;
+        if (idx >= s->nbQuestions) return;
+
+        Question *q = &s->questions[idx];
+        msg = cJSON_CreateObject();
+        cJSON_AddStringToObject(msg, "action", "question/new");
+        cJSON_AddNumberToObject(msg, "questionNum", idx + 1);
+        cJSON_AddNumberToObject(msg, "totalQuestions", s->nbQuestions);
+        
+        const char *type = "qcm";
+        if (strlen(q->answers[1]) == 0 || strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
+            if (strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
+                type = "boolean";
+            } else {
+                type = "text";
+            }
         }
+        cJSON_AddStringToObject(msg, "type", type);
+        if (strcmp(type, "qcm") == 0) {
+            cJSON *answers = cJSON_CreateArray();
+            for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
+                cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));
+            }
+            cJSON_AddItemToObject(msg, "answers", answers);
+        }
+        const char *diff[] = {"facile", "moyen", "difficile"};
+        cJSON_AddStringToObject(msg, "difficulty", diff[q->difficulty]);
+        cJSON_AddStringToObject(msg, "question", q->question);
+
+        log_info("Sending question %d to player %s: %s", idx + 1, s->players[playerIndex].pseudo, q->question);
+
+        send_json_to_socket(s->players[playerIndex].sock, msg);
+        cJSON_Delete(msg);
+        return;
+    }
+
+    /* playerIndex < 0 : send each player their own next question */
+    for (int p = 0; p < s->playerCount; p++) {
+        int idx = s->players[p].currentQuestionIndex;
+        if (idx >= s->nbQuestions) continue;
+        Question *q = &s->questions[idx];
+        msg = cJSON_CreateObject();
+        cJSON_AddStringToObject(msg, "action", "question/new");
+        cJSON_AddNumberToObject(msg, "questionNum", idx + 1);
+        cJSON_AddNumberToObject(msg, "totalQuestions", s->nbQuestions);
+        
+        const char *type = "qcm";
+        if (strlen(q->answers[1]) == 0 || strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
+            if (strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
+                type = "boolean";
+            } else {
+                type = "text";
+            }
+        }
+        cJSON_AddStringToObject(msg, "type", type);
+        if (strcmp(type, "qcm") == 0) {
+            cJSON *answers = cJSON_CreateArray();
+            for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
+                cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));
+            }
+            cJSON_AddItemToObject(msg, "answers", answers);
+        }
+        const char *diff[] = {"facile", "moyen", "difficile"};
+        cJSON_AddStringToObject(msg, "difficulty", diff[q->difficulty]);
+        cJSON_AddStringToObject(msg, "question", q->question);
+
+        log_info("Sending question %d to player %s: %s", idx + 1, s->players[p].pseudo, q->question);
+        send_json_to_socket(s->players[p].sock, msg);
+        cJSON_Delete(msg);
+        msg = NULL;
     }
     
-    cJSON_Delete(msg);
 }
 
 

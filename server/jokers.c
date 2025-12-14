@@ -33,7 +33,11 @@ char* apply_5050(Session *s, int playerIndex) {
     Player *p = &s->players[playerIndex];
     p->jokersUsed[JOKER_5050] = 1;
     
-    Question *q = &s->questions[s->currentQuestionIndex];
+    int qidx = p->currentQuestionIndex;
+    if (qidx < 0 || qidx >= s->nbQuestions) {
+        return strdup("{\"action\":\"joker/used\",\"statut\":\"400\",\"message\":\"invalid question index\"}");
+    }
+    Question *q = &s->questions[qidx];
     
     if (strlen(q->answers[1]) == 0) {
         return strdup("{\"action\":\"joker/used\",\"statut\":\"400\",\"message\":\"cannot use 50/50 on this question\"}");

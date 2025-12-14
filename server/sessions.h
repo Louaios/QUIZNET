@@ -26,6 +26,7 @@ typedef struct {
     int jokersUsed[2];
     int lives;          // Nombre de vies (mode battle)
     int isEliminated;   // 1 si éliminé, 0 sinon
+    int currentQuestionIndex; // progression individuelle du joueur
 } Player;
 
 typedef struct Session {
@@ -36,7 +37,7 @@ typedef struct Session {
     int timeLimit;
     int difficulty;
     int playerCount;
-    int currentQuestionIndex;
+    /* session-level currentQuestionIndex removed to allow per-player progression */
     int isStarted;
     Player players[MAX_PLAYERS];
     Question questions[100];

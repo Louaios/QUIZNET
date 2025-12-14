@@ -27,7 +27,6 @@ Session* create_session_full(const char *name, const char *mode,
     s->timeLimit = timeLimit;
     s->difficulty = difficulty;
     s->playerCount = 0;
-    s->currentQuestionIndex = 0;
     s->isStarted = 0;
     pthread_mutex_init(&s->lock, NULL);
     
@@ -60,6 +59,7 @@ int add_player_to_session(Session *s, const char *pseudo, int sock) {
     p->jokersUsed[1] = 0;
     p->lives = 4;           // Initialiser les vies
     p->isEliminated = 0;    // Pas éliminé au départ
+    p->currentQuestionIndex = 0; // start at first question for this player
     
     s->playerCount++;
     
