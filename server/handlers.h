@@ -24,7 +24,7 @@ int handle_chat_send(cJSON *request, int session_id, int sock);
 // Fonction utilitaire pour envoyer du JSON
 void send_json_to_socket(int sock, cJSON *json);
 
-// Envoyer les résultats d'une question
-void send_question_results(Session *s, int correct_answer_index);
+// Envoyer les résultats d'une question à un joueur spécifique
+void send_question_results(Session *s, int correct_answer_index, int forPlayer);
 
 #endif

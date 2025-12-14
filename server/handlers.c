@@ -357,14 +357,16 @@ int handle_session_start(int session_id) {
 // ============================================================================
 // FONCTION : Envoyer les résultats d'une question
 // ============================================================================
-void send_question_results(Session *s, int correct_answer_index) {
+void send_question_results(Session *s, int correct_answer_index, int forPlayer) {
+    if (forPlayer < 0 || forPlayer >= s->playerCount) return;
+
     cJSON *results_msg = cJSON_CreateObject();
     cJSON_AddStringToObject(results_msg, "action", "question/results");
     cJSON_AddNumberToObject(results_msg, "correctAnswer", correct_answer_index);
-    
+
     Player sorted_players[MAX_PLAYERS];
     memcpy(sorted_players, s->players, s->playerCount * sizeof(Player));
-    
+
     for (int i = 0; i < s->playerCount - 1; i++) {
         for (int j = 0; j < s->playerCount - i - 1; j++) {
             if (sorted_players[j].score < sorted_players[j + 1].score) {
@@ -374,32 +376,31 @@ void send_question_results(Session *s, int correct_answer_index) {
             }
         }
     }
-    
+
     cJSON *ranking = cJSON_CreateArray();
     for (int i = 0; i < s->playerCount; i++) {
         if (strcmp(s->mode, "battle") == 0 && sorted_players[i].isEliminated) {
             continue;
         }
-        
+
         cJSON *player_rank = cJSON_CreateObject();
         cJSON_AddNumberToObject(player_rank, "rank", i + 1);
         cJSON_AddStringToObject(player_rank, "pseudo", sorted_players[i].pseudo);
         cJSON_AddNumberToObject(player_rank, "score", sorted_players[i].score);
-        
+
         if (strcmp(s->mode, "battle") == 0) {
             cJSON_AddNumberToObject(player_rank, "lives", sorted_players[i].lives);
         }
-        
+
         cJSON_AddItemToArray(ranking, player_rank);
     }
     cJSON_AddItemToObject(results_msg, "ranking", ranking);
-    
-    for (int i = 0; i < s->playerCount; i++) {
-        send_json_to_socket(s->players[i].sock, results_msg);
-    }
-    
+
+    /* Send results only to the answering player to keep others' views unchanged */
+    send_json_to_socket(s->players[forPlayer].sock, results_msg);
+
     cJSON_Delete(results_msg);
-    log_info("Sent question results to %d players", s->playerCount);
+    log_info("Sent question results to player %s", s->players[forPlayer].pseudo);
 }
 
 
@@ -525,7 +526,7 @@ int handle_question_answer(cJSON *request, int session_id, int sock) {
             points, 
             current_session->players[player_idx].score);
     
-    send_question_results(current_session, current_q->correct_index);
+    send_question_results(current_session, current_q->correct_index, player_idx);
     
     // 🔧 CORRECTION : sleep retiré (cause de latence)
     // sleep(3);  <- ENLEVÉ
