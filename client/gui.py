@@ -886,6 +886,13 @@ class QuizNetGUI:
         
         elif action == 'question/new':
             print(f"Nouvelle question reçue")
+            # debug: afficher le contenu brut du message pour diagnostiquer les questions vides
+            print("RAW message for question/new:", repr(message))
+            try:
+                print("question key type:", type(message.get('question')),
+                      "keys:", list(message.keys()))
+            except Exception:
+                pass
             self.root.after(0, lambda m=message: self.show_question(m))
         
         elif action == 'question/results':
