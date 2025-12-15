@@ -923,9 +923,17 @@ class QuizNetGUI:
                     pass
             self.root.after(0, lambda m=message: self.show_question(m))
 
+        #gestion du shutdown serveur #
+        #pop up messagebox avant de retourner a l'ecran de découverte #
         elif action == 'server/shutdown' or action == 'connection/closed':
             print("Server shutdown received; returning to discovery screen")
-            self.root.after(0, self.show_discovery_screen)
+            def _shutdown_notice():
+                try:
+                    messagebox.showinfo("Déconnecté", "Le serveur s'est arrêté. Retour à la recherche de serveurs.")
+                except Exception:
+                    pass
+                self.show_discovery_screen()
+            self.root.after(0, _shutdown_notice)
         
         elif action == 'question/results':
             # Résultats intermédiaires
