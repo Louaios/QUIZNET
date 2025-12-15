@@ -55,6 +55,7 @@ void load_questions(const char *filename) {
             
             dest->id = id->valueint;
             strncpy(dest->question, question->valuestring, MAX_QUESTION_TEXT - 1);
+            dest->question[MAX_QUESTION_TEXT - 1] = '\0';
             dest->correct_index = correct->valueint;
             
             if (strcmp(difficulty->valuestring, "facile") == 0) dest->difficulty = 0;
@@ -63,8 +64,9 @@ void load_questions(const char *filename) {
             
             if (themes && cJSON_IsArray(themes)) {
                 cJSON *theme = cJSON_GetArrayItem(themes, 0);
-                if (theme && theme->valuestring) {
+                    if (theme && theme->valuestring) {
                     strncpy(dest->theme, theme->valuestring, 31);
+                    dest->theme[31] = '\0';
                 }
             }
             
@@ -72,8 +74,9 @@ void load_questions(const char *filename) {
             cJSON *answer = NULL;
             cJSON_ArrayForEach(answer, answers) {
                 if (ans_count >= MAX_ANSWERS) break;
-                if (answer->valuestring) {
+                    if (answer->valuestring) {
                     strncpy(dest->answers[ans_count], answer->valuestring, MAX_ANSWER_TEXT - 1);
+                    dest->answers[ans_count][MAX_ANSWER_TEXT - 1] = '\0';
                     ans_count++;
                 }
             }

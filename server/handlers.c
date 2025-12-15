@@ -746,7 +746,22 @@ void send_next_question(Session *s, int playerIndex) {
         }
         const char *diff[] = {"facile", "moyen", "difficile"};
         cJSON_AddStringToObject(msg, "difficulty", diff[q->difficulty]);
-        cJSON_AddStringToObject(msg, "question", q->question);
+        // trimmer les espaces en début/fin de question avant envoi
+        char trimmed_question[MAX_QUESTION_TEXT];
+        strncpy(trimmed_question, q->question, MAX_QUESTION_TEXT - 1);
+        trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+        // trim leading
+        char *start = trimmed_question;
+        while (*start && (*start == ' ' || *start == '\n' || *start == '\r' || *start == '\t')) start++;
+        // trim trailing
+        char *end = start + strlen(start) - 1;
+        while (end >= start && (*end == ' ' || *end == '\n' || *end == '\r' || *end == '\t')) { *end = '\0'; end--; }
+        if (start[0] == '\0') {
+            strncpy(trimmed_question, "[Question vide]", MAX_QUESTION_TEXT - 1);
+            trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+            start = trimmed_question;
+        }
+        cJSON_AddStringToObject(msg, "question", start);
 
         log_info("Sending question %d to player %s: %s", idx + 1, s->players[playerIndex].pseudo, q->question);
 
@@ -783,7 +798,20 @@ void send_next_question(Session *s, int playerIndex) {
         }
         const char *diff[] = {"facile", "moyen", "difficile"};
         cJSON_AddStringToObject(msg, "difficulty", diff[q->difficulty]);
-        cJSON_AddStringToObject(msg, "question", q->question);
+        // Trim leading/trailing whitespace from question before sending
+        char trimmed_question[MAX_QUESTION_TEXT];
+        strncpy(trimmed_question, q->question, MAX_QUESTION_TEXT - 1);
+        trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+        char *start = trimmed_question;
+        while (*start && (*start == ' ' || *start == '\n' || *start == '\r' || *start == '\t')) start++;
+        char *end = start + strlen(start) - 1;
+        while (end >= start && (*end == ' ' || *end == '\n' || *end == '\r' || *end == '\t')) { *end = '\0'; end--; }
+        if (start[0] == '\0') {
+            strncpy(trimmed_question, "[Question vide]", MAX_QUESTION_TEXT - 1);
+            trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+            start = trimmed_question;
+        }
+        cJSON_AddStringToObject(msg, "question", start);
 
         log_info("Sending question %d to player %s: %s", idx + 1, s->players[p].pseudo, q->question);
         send_json_to_socket(s->players[p].sock, msg);
