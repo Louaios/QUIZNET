@@ -68,9 +68,13 @@ void load_questions(const char *filename) {
             Question *dest = &questions[question_count];
             
             dest->id = id->valueint;
-            strncpy(dest->question, question->valuestring, MAX_QUESTION_TEXT - 1);
-            dest->question[MAX_QUESTION_TEXT - 1] = '\0';
-            trim_inplace(dest->question);
+            if (cJSON_IsString(question) && question->valuestring) {
+                strncpy(dest->question, question->valuestring, MAX_QUESTION_TEXT - 1);
+                dest->question[MAX_QUESTION_TEXT - 1] = '\0';
+                trim_inplace(dest->question);
+            } else {
+                dest->question[0] = '\0';
+            }
             dest->correct_index = correct->valueint;
             
             if (strcmp(difficulty->valuestring, "facile") == 0) dest->difficulty = 0;
@@ -89,9 +93,10 @@ void load_questions(const char *filename) {
             cJSON *answer = NULL;
             cJSON_ArrayForEach(answer, answers) {
                 if (ans_count >= MAX_ANSWERS) break;
-                    if (answer->valuestring) {
+                    if (cJSON_IsString(answer) && answer->valuestring) {
                     strncpy(dest->answers[ans_count], answer->valuestring, MAX_ANSWER_TEXT - 1);
                     dest->answers[ans_count][MAX_ANSWER_TEXT - 1] = '\0';
+                    trim_inplace(dest->answers[ans_count]);
                     ans_count++;
                 }
             }
@@ -136,7 +141,13 @@ int select_questions(Question *dest, int nb, int difficulty, const char *theme) 
         int idx = rand() % available_count;
         int question_idx = available[idx];
         
-        dest[selected++] = questions[question_idx];
+        // copy struct
+        dest[selected] = questions[question_idx];
+        // diagnostic: if text-type question but question string empty, log it
+        if (strlen(dest[selected].question) == 0) {
+            printf("[WARN] select_questions: selected question id=%d has empty text\n", dest[selected].id);
+        }
+        selected++;
         
         available[idx] = available[available_count - 1];
         available_count--;
