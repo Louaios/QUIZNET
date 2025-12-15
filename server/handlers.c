@@ -728,16 +728,9 @@ void send_next_question(Session *s, int playerIndex) {
         cJSON_AddNumberToObject(msg, "questionNum", idx + 1);
         cJSON_AddNumberToObject(msg, "totalQuestions", s->nbQuestions);
         
-        const char *type = "qcm";
-        if (strlen(q->answers[1]) == 0 || strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
-            if (strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
-                type = "boolean";
-            } else {
-                type = "text";
-            }
-        }
+        const char *type = (q->type == 0 ? "qcm" : (q->type == 1 ? "boolean" : "text"));
         cJSON_AddStringToObject(msg, "type", type);
-        if (strcmp(type, "qcm") == 0) {
+        if (q->type == 0) {
             cJSON *answers = cJSON_CreateArray();
             for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
                 cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));
@@ -799,16 +792,9 @@ void send_next_question(Session *s, int playerIndex) {
         cJSON_AddNumberToObject(msg, "questionNum", idx + 1);
         cJSON_AddNumberToObject(msg, "totalQuestions", s->nbQuestions);
         
-        const char *type = "qcm";
-        if (strlen(q->answers[1]) == 0 || strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
-            if (strcmp(q->answers[0], "true") == 0 || strcmp(q->answers[0], "false") == 0) {
-                type = "boolean";
-            } else {
-                type = "text";
-            }
-        }
+        const char *type = (q->type == 0 ? "qcm" : (q->type == 1 ? "boolean" : "text"));
         cJSON_AddStringToObject(msg, "type", type);
-        if (strcmp(type, "qcm") == 0) {
+        if (q->type == 0) {
             cJSON *answers = cJSON_CreateArray();
             for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
                 cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));

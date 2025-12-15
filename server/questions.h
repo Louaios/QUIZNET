@@ -11,6 +11,7 @@ typedef struct {
     char question[MAX_QUESTION_TEXT];
     char answers[MAX_ANSWERS][MAX_ANSWER_TEXT];
     int correct_index;
+    int type; // 0=qcm, 1=boolean, 2=text
     int difficulty;
     char theme[32];
 } Question;

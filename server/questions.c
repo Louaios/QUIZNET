@@ -10,7 +10,7 @@
 Question questions[MAX_QUESTIONS];
 int question_count = 0;
 
-/* trimming le */
+/* Trim whitespace in-place: remove leading and trailing whitespace */
 static void trim_inplace(char *s) {
     if (!s) return;
     char *start = s;
@@ -59,6 +59,7 @@ void load_questions(const char *filename) {
         
         cJSON *id = cJSON_GetObjectItem(q, "id");
         cJSON *question = cJSON_GetObjectItem(q, "question");
+        cJSON *type = cJSON_GetObjectItem(q, "type");
         cJSON *answers = cJSON_GetObjectItem(q, "answers");
         cJSON *correct = cJSON_GetObjectItem(q, "correct");
         cJSON *difficulty = cJSON_GetObjectItem(q, "difficulty");
@@ -76,6 +77,27 @@ void load_questions(const char *filename) {
                 dest->question[0] = '\0';
             }
             dest->correct_index = correct->valueint;
+
+            // Parse type explicitly; fallback to heuristic if missing
+            dest->type = 0; // default qcm
+            if (type && cJSON_IsString(type) && type->valuestring) {
+                if (strcmp(type->valuestring, "qcm") == 0) dest->type = 0;
+                else if (strcmp(type->valuestring, "boolean") == 0) dest->type = 1;
+                else if (strcmp(type->valuestring, "text") == 0) dest->type = 2;
+            } else {
+                // heuristic: single answer -> text, answers[0] true/false -> boolean
+                if (answers && cJSON_IsArray(answers)) {
+                    int count = cJSON_GetArraySize(answers);
+                    if (count <= 1) dest->type = 2;
+                    else {
+                        cJSON *a0 = cJSON_GetArrayItem(answers, 0);
+                        if (a0 && cJSON_IsString(a0) && a0->valuestring &&
+                            (strcmp(a0->valuestring, "true") == 0 || strcmp(a0->valuestring, "false") == 0)) {
+                            dest->type = 1;
+                        }
+                    }
+                }
+            }
             
             if (strcmp(difficulty->valuestring, "facile") == 0) dest->difficulty = 0;
             else if (strcmp(difficulty->valuestring, "moyen") == 0) dest->difficulty = 1;
@@ -162,15 +184,25 @@ char* question_to_json(const Question *q) {
     cJSON_AddNumberToObject(json, "id", q->id);
     cJSON_AddStringToObject(json, "question", q->question);
     cJSON_AddNumberToObject(json, "correct", q->correct_index);
+    const char *type_str[] = {"qcm", "boolean", "text"};
+    cJSON_AddStringToObject(json, "type", type_str[q->type]);
     
     const char *diff[] = {"facile", "moyen", "difficile"};
     cJSON_AddStringToObject(json, "difficulty", diff[q->difficulty]);
     
-    cJSON *answers = cJSON_CreateArray();
-    for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
-        cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));
-    }
-    cJSON_AddItemToObject(json, "answers", answers);
+    if (q->type == 0) { // qcm: include answers
+        cJSON *answers = cJSON_CreateArray();
+        for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
+            cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));
+        }
+        cJSON_AddItemToObject(json, "answers", answers);
+    } else if (q->type == 1) { // boolean: standard true/false
+        cJSON *answers = cJSON_CreateArray();
+        for (int i = 0; i < MAX_ANSWERS && strlen(q->answers[i]) > 0; i++) {
+            cJSON_AddItemToArray(answers, cJSON_CreateString(q->answers[i]));
+        }
+        cJSON_AddItemToObject(json, "answers", answers);
+    } // text: omit answers
     
     char *result = cJSON_PrintUnformatted(json);
     cJSON_Delete(json);

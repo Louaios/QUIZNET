@@ -341,6 +341,546 @@
       "correct": 0,
       "difficulty": "facile",
       "themes": ["Littérature"]
+    },
+    {
+      "id": 39,
+      "question": "Quel est le système d'exploitation créé par Linus Torvalds ?",
+      "type": "text",
+      "answers": ["Linux", "linux"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 40,
+      "question": "Quel protocole sécurise les pages web par TLS ?",
+      "type": "text",
+      "answers": ["HTTPS", "https"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 41,
+      "question": "Quel est le gestionnaire de versions le plus utilisé ?",
+      "type": "text",
+      "answers": ["Git", "git"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 42,
+      "question": "Quel langage s’exécute dans le navigateur pour le web ?",
+      "type": "text",
+      "answers": ["JavaScript", "javascript", "JS", "js"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 43,
+      "question": "Quel format léger d’échange de données est utilisé par cJSON ?",
+      "type": "text",
+      "answers": ["JSON", "json"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 44,
+      "question": "Comment s'appelle le gestionnaire de paquets de Python ?",
+      "type": "text",
+      "answers": ["pip", "PIP"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 45,
+      "question": "Quel est le port par défaut de SSH ?",
+      "type": "text",
+      "answers": ["22", "22/tcp"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 46,
+      "question": "Quel est le langage utilisé pour développer le noyau Linux ?",
+      "type": "text",
+      "answers": ["C", "c"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 47,
+      "question": "Quel est l'acronyme de l’architecture REpresentational State Transfer ?",
+      "type": "text",
+      "answers": ["REST", "rest"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 48,
+      "question": "Quel outil gère les versions et a été créé par Linus Torvalds ?",
+      "type": "text",
+      "answers": ["Git", "git"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Informatique"]
+    },
+    {
+      "id": 49,
+      "question": "En quelle ville Jules César fut-il assassiné ?",
+      "type": "text",
+      "answers": ["Rome"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 50,
+      "question": "Qui a mené la conquête de la Gaule ?",
+      "type": "text",
+      "answers": ["Jules César", "Jules Cesar", "César", "Cesar"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 51,
+      "question": "Quel roi de France a été guillotiné en 1793 ?",
+      "type": "text",
+      "answers": ["Louis XVI", "Louis 16"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 52,
+      "question": "Qui a découvert l’Amérique en 1492 (européens) ?",
+      "type": "text",
+      "answers": ["Christophe Colomb", "Colomb"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 53,
+      "question": "Qui a proclamé l’Empire français en 1804 ?",
+      "type": "text",
+      "answers": ["Napoléon Bonaparte", "Napoleon Bonaparte", "Napoléon", "Napoleon"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 54,
+      "question": "Quelle guerre a opposé le Nord et le Sud des États-Unis ?",
+      "type": "text",
+      "answers": ["Guerre de Sécession", "Guerre de secession", "Guerre civile américaine"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 55,
+      "question": "Quel traité a mis fin à la Première Guerre mondiale ?",
+      "type": "text",
+      "answers": ["Traité de Versailles", "Traite de Versailles", "Versailles"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 56,
+      "question": "Qui a initié la Réforme protestante en 1517 ?",
+      "type": "text",
+      "answers": ["Martin Luther", "Luther"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 57,
+      "question": "Quel mur est tombé en 1989 ?",
+      "type": "text",
+      "answers": ["Mur de Berlin", "Le mur de Berlin", "Mur de berlin"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 58,
+      "question": "Quel pays a lancé Spoutnik en 1957 ?",
+      "type": "text",
+      "answers": ["URSS", "U.R.S.S.", "Union soviétique", "Union sovietique", "Union Soviétique"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Histoire"]
+    },
+    {
+      "id": 59,
+      "question": "Quelle particule porte une charge négative ?",
+      "type": "text",
+      "answers": ["Électron", "Electron"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 60,
+      "question": "Quel gaz est le plus abondant dans l’atmosphère terrestre ?",
+      "type": "text",
+      "answers": ["Azote", "Diazote", "N2"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 61,
+      "question": "Quel est l’organelle responsable de la photosynthèse ?",
+      "type": "text",
+      "answers": ["Chloroplaste", "Chloroplastes"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 62,
+      "question": "Quel est l’élément de numéro atomique 1 ?",
+      "type": "text",
+      "answers": ["Hydrogène", "Hydrogene", "H"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 63,
+      "question": "Quelle unité mesure la fréquence ?",
+      "type": "text",
+      "answers": ["Hertz", "Hz"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 64,
+      "question": "Quel physicien a proposé la relativité restreinte ?",
+      "type": "text",
+      "answers": ["Albert Einstein", "Einstein"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 65,
+      "question": "Quel est l’état de la matière d’un solide au-delà de la fusion ?",
+      "type": "text",
+      "answers": ["Liquide"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 66,
+      "question": "Quelle molécule transporte l’oxygène dans le sang ?",
+      "type": "text",
+      "answers": ["Hémoglobine", "Hemoglobine"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 67,
+      "question": "Quelle planète est connue pour ses anneaux visibles ?",
+      "type": "text",
+      "answers": ["Saturne", "Saturn"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 68,
+      "question": "Quel est le satellite naturel de la Terre ?",
+      "type": "text",
+      "answers": ["Lune", "La Lune"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Science"]
+    },
+    {
+      "id": 69,
+      "question": "Quel pays a la plus grande superficie ?",
+      "type": "text",
+      "answers": ["Russie", "La Russie"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 70,
+      "question": "Quelle capitale d’Autriche se trouve sur le Danube ?",
+      "type": "text",
+      "answers": ["Vienne", "Vienna"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 71,
+      "question": "Quel désert se trouve au centre de l’Australie ?",
+      "type": "text",
+      "answers": ["Désert du Grand Victoria", "Grand Victoria", "Great Victoria Desert"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 72,
+      "question": "Quel est le plus haut sommet du monde ?",
+      "type": "text",
+      "answers": ["Everest", "Mont Everest"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 73,
+      "question": "Quel océan borde l’ouest des Amériques ?",
+      "type": "text",
+      "answers": ["Pacifique", "Océan Pacifique", "Ocean Pacifique"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 74,
+      "question": "Quel fleuve traverse l’Égypte ?",
+      "type": "text",
+      "answers": ["Nil", "Le Nil"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 75,
+      "question": "Quelle est la capitale du Japon ?",
+      "type": "text",
+      "answers": ["Tokyo", "Tōkyō"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 76,
+      "question": "Quel pays a pour capitale Ottawa ?",
+      "type": "text",
+      "answers": ["Canada", "Le Canada"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 77,
+      "question": "Quelle mer sépare l’Europe de l’Afrique au nord ?",
+      "type": "text",
+      "answers": ["Méditerranée", "Mer Méditerranée", "Mer Méditerranée"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 78,
+      "question": "Sur quel continent se trouve l’Argentine ?",
+      "type": "text",
+      "answers": ["Amérique du Sud", "Amerique du Sud"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 79,
+      "question": "Qui a peint Guernica ?",
+      "type": "text",
+      "answers": ["Pablo Picasso", "Picasso"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 80,
+      "question": "Quel artiste est célèbre pour les Nymphéas ?",
+      "type": "text",
+      "answers": ["Claude Monet", "Monet"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 81,
+      "question": "Qui a sculpté Le Penseur ?",
+      "type": "text",
+      "answers": ["Auguste Rodin", "Rodin"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 82,
+      "question": "À quel mouvement associe-t-on Salvador Dalí ?",
+      "type": "text",
+      "answers": ["Surréalisme", "Surrealisme"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 83,
+      "question": "Quel architecte a conçu la Sagrada Família ?",
+      "type": "text",
+      "answers": ["Antoni Gaudí", "Antoni Gaudi", "Gaudí", "Gaudi"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 84,
+      "question": "Quel peintre a coupé une partie de son oreille ?",
+      "type": "text",
+      "answers": ["Vincent van Gogh", "Van Gogh"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 85,
+      "question": "Qui a peint La Jeune Fille à la perle ?",
+      "type": "text",
+      "answers": ["Johannes Vermeer", "Vermeer"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 86,
+      "question": "À quel courant artistique appartient Jackson Pollock ?",
+      "type": "text",
+      "answers": ["Expressionnisme abstrait", "Expressionnisme abstraite", "Abstract Expressionism"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 87,
+      "question": "Qui a peint La Cène ?",
+      "type": "text",
+      "answers": ["Léonard de Vinci", "Leonard de Vinci", "Da Vinci"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 88,
+      "question": "Quel musée abrite la Joconde ?",
+      "type": "text",
+      "answers": ["Louvre", "Musée du Louvre", "Musee du Louvre"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Art"]
+    },
+    {
+      "id": 89,
+      "question": "Qui a écrit Don Quichotte ?",
+      "type": "text",
+      "answers": ["Miguel de Cervantès", "Miguel de Cervantes", "Cervantes"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 90,
+      "question": "Qui est l’auteur de 1984 ?",
+      "type": "text",
+      "answers": ["George Orwell", "Orwell"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 91,
+      "question": "Qui a écrit L’Étranger ?",
+      "type": "text",
+      "answers": ["Albert Camus", "Camus"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 92,
+      "question": "Qui a écrit Madame Bovary ?",
+      "type": "text",
+      "answers": ["Gustave Flaubert", "Flaubert"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 93,
+      "question": "Qui a écrit Le Seigneur des Anneaux ?",
+      "type": "text",
+      "answers": ["J. R. R. Tolkien", "Tolkien", "JRR Tolkien", "J.R.R. Tolkien"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 94,
+      "question": "Qui a créé le détective Sherlock Holmes ?",
+      "type": "text",
+      "answers": ["Arthur Conan Doyle", "Conan Doyle", "Doyle"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 95,
+      "question": "Qui a écrit La Métamorphose ?",
+      "type": "text",
+      "answers": ["Franz Kafka", "Kafka"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 96,
+      "question": "Qui a écrit Orgueil et Préjugés ?",
+      "type": "text",
+      "answers": ["Jane Austen", "Austen"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 97,
+      "question": "Qui a écrit Le Petit Prince ?",
+      "type": "text",
+      "answers": ["Antoine de Saint-Exupéry", "Antoine de Saint Exupéry", "Saint-Exupéry", "Saint Exupéry", "Exupéry", "Exupery"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 98,
+      "question": "Qui a écrit Les Fleurs du mal ?",
+      "type": "text",
+      "answers": ["Charles Baudelaire", "Baudelaire"],
+      "correct": 0,
+      "difficulty": "moyen",
+      "themes": ["Littérature"]
     }
   ]
 }
