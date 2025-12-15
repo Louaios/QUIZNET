@@ -10,7 +10,7 @@
 Question questions[MAX_QUESTIONS];
 int question_count = 0;
 
-/* Trim whitespace in-place: remove leading and trailing whitespace */
+/* trimming le */
 static void trim_inplace(char *s) {
     if (!s) return;
     char *start = s;
