@@ -770,7 +770,7 @@ void send_next_question(Session *s, int playerIndex) {
         return;
     }
 
-    /* playerIndex < 0 : send each player their own next question */
+    /* playerIndex < 0 : envoi à tous les joueurs les questions independament */
     for (int p = 0; p < s->playerCount; p++) {
         int idx = s->players[p].currentQuestionIndex;
         if (idx >= s->nbQuestions) continue;
@@ -798,7 +798,6 @@ void send_next_question(Session *s, int playerIndex) {
         }
         const char *diff[] = {"facile", "moyen", "difficile"};
         cJSON_AddStringToObject(msg, "difficulty", diff[q->difficulty]);
-        // Trim leading/trailing whitespace from question before sending
         char trimmed_question[MAX_QUESTION_TEXT];
         strncpy(trimmed_question, q->question, MAX_QUESTION_TEXT - 1);
         trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';

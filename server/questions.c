@@ -56,6 +56,16 @@ void load_questions(const char *filename) {
             dest->id = id->valueint;
             strncpy(dest->question, question->valuestring, MAX_QUESTION_TEXT - 1);
             dest->question[MAX_QUESTION_TEXT - 1] = '\0';
+            char *qtrim = trim(dest->question);
+            if (qtrim != dest->question) {
+                memmove(dest->question, qtrim, strlen(qtrim) + 1);
+            }
+            // Debuggin
+            if (strlen(dest->question) == 0) {
+                printf("[DEBUG] Loaded question id=%d has empty text\n", dest->id);
+            } else {
+                printf("[DEBUG] Loaded question id=%d text='%s'\n", dest->id, dest->question);
+            }
             dest->correct_index = correct->valueint;
             
             if (strcmp(difficulty->valuestring, "facile") == 0) dest->difficulty = 0;
