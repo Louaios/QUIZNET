@@ -505,8 +505,18 @@ class QuizNetGUI:
         question_frame = tk.Frame(frame, bg="#e3f2fd", padx=20, pady=20)
         question_frame.pack(fill="x", pady=20)
         
-        tk.Label(question_frame, text=question_data.get('question', 'Question'), 
-                font=("Arial", 16, "bold"), bg="#e3f2fd", wraplength=700).pack()
+        # question de type text fixed #
+        # s'assurer que la question n'est pas None ou vide #
+        qtext = question_data.get('question', '')
+        if qtext is None:
+            qtext = ''
+        qtext = str(qtext).strip()
+        if not qtext:
+            qtext = "[Question vide]"
+
+        tk.Message(question_frame, text=qtext,
+                   font=("Arial", 16, "bold"), bg="#e3f2fd",
+                   width=700, anchor='w', justify='left').pack(fill='x')
         
         if self.jokers.get("fifty", 0) > 0 or self.jokers.get("skip", 0) > 0:
             jokers_frame = tk.Frame(frame, bg="#FFF3E0", padx=10, pady=10)
@@ -574,17 +584,27 @@ class QuizNetGUI:
     
     def show_boolean_answers(self, parent):
         self.answer_var = tk.StringVar(value="")
-        
+
         btn_frame = tk.Frame(parent)
         btn_frame.pack(expand=True)
-        
-        tk.Radiobutton(btn_frame, text="✓ VRAI", variable=self.answer_var, value="true",
-                      font=("Arial", 16, "bold"), fg="#4CAF50", 
-                      selectcolor="#4CAF50", padx=30, pady=20).pack(side="left", padx=20)
-        
-        tk.Radiobutton(btn_frame, text="✗ FAUX", variable=self.answer_var, value="false",
-                      font=("Arial", 16, "bold"), fg="#f44336",
-                      selectcolor="#f44336", padx=30, pady=20).pack(side="left", padx=20)
+
+        # creer les boutons radio pour les réponses booléennes #
+        # s'assurer  que seul le bouton sélectionné reste actif visuellement.  #
+        self.boolean_true_btn = tk.Radiobutton(
+            btn_frame, text="✓ VRAI", variable=self.answer_var, value="true",
+            font=("Arial", 16, "bold"), fg="#4CAF50",
+            indicatoron=1, padx=30, pady=20,
+            command=lambda: self._on_boolean_selected("true")
+        )
+        self.boolean_true_btn.pack(side="left", padx=20)
+
+        self.boolean_false_btn = tk.Radiobutton(
+            btn_frame, text="✗ FAUX", variable=self.answer_var, value="false",
+            font=("Arial", 16, "bold"), fg="#f44336",
+            indicatoron=1, padx=30, pady=20,
+            command=lambda: self._on_boolean_selected("false")
+        )
+        self.boolean_false_btn.pack(side="left", padx=20)
         
         tk.Button(parent, text="Valider", command=self.submit_answer,
                  bg="#4CAF50", fg="white", font=("Arial", 14), width=20).pack(pady=40)
@@ -599,6 +619,20 @@ class QuizNetGUI:
         
         tk.Button(parent, text="Valider", command=self.submit_answer,
                  bg="#4CAF50", fg="white", font=("Arial", 14), width=20).pack(pady=20)
+
+    def _on_boolean_selected(self, val):
+        # s'assurer que seul le bouton sélectionné reste actif visuellement.  #
+        try:
+            self.answer_var.set(val)
+            if hasattr(self, 'boolean_true_btn') and hasattr(self, 'boolean_false_btn'):
+                if val == 'true':
+                    self.boolean_true_btn.select()
+                    self.boolean_false_btn.deselect()
+                else:
+                    self.boolean_false_btn.select()
+                    self.boolean_true_btn.deselect()
+        except Exception:
+            pass
     
     def update_timer(self):
         if not hasattr(self, 'timer_label'):
@@ -837,7 +871,7 @@ class QuizNetGUI:
                 self.root.after(0, lambda m=msg: messagebox.showerror("Erreur", m))
         
         elif action == 'session/player-joined':
-            # 🔧 CORRECTION : Notification nouveau joueur
+            # Notification nouveau joueur
             new_player = message.get('pseudo', 'Unknown')
             player_count = message.get('playerCount', 0)
             print(f"{new_player} a rejoint la session ({player_count} joueurs)")
@@ -855,7 +889,7 @@ class QuizNetGUI:
             self.root.after(0, lambda m=message: self.show_question(m))
         
         elif action == 'question/results':
-            # 🔧 CORRECTION : Résultats intermédiaires
+            # Résultats intermédiaires
             print(f"Résultats de la question reçus")
             self.root.after(0, lambda m=message: self.show_question_results(m))
         
@@ -892,7 +926,6 @@ class QuizNetGUI:
             self.root.after(0, lambda p=pseudo, t=text, ts=timestamp: self.append_chat_message(p, t, ts))
 
         elif action == 'chat/sent':
-            # optional ack from server, ignore or could show status
             pass
 
 
@@ -906,7 +939,7 @@ class QuizNetGUI:
             self.root.after(0, lambda m=message: self.show_final_results(m))
     
     def on_closing(self):
-        # Destroy chat window if present
+        # detruire la fenetre de chat si ouverte #
         if hasattr(self, 'chat_window'):
             try:
                 self.chat_window.destroy()
