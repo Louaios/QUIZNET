@@ -763,7 +763,7 @@ void send_next_question(Session *s, int playerIndex) {
         }
         cJSON_AddStringToObject(msg, "question", start);
 
-        log_info("Sending question %d to player %s: %s", idx + 1, s->players[playerIndex].pseudo, q->question);
+        log_info("Sending question %d to player %s: %s", idx + 1, s->players[playerIndex].pseudo, start);
 
         send_json_to_socket(s->players[playerIndex].sock, msg);
         cJSON_Delete(msg);
@@ -812,7 +812,7 @@ void send_next_question(Session *s, int playerIndex) {
         }
         cJSON_AddStringToObject(msg, "question", start);
 
-        log_info("Sending question %d to player %s: %s", idx + 1, s->players[p].pseudo, q->question);
+        log_info("Sending question %d to player %s: %s", idx + 1, s->players[p].pseudo, start);
         send_json_to_socket(s->players[p].sock, msg);
         cJSON_Delete(msg);
         msg = NULL;

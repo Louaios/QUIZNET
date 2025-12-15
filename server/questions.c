@@ -1,6 +1,7 @@
 #include "questions.h"
 #include "utils.h"
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -9,6 +10,18 @@
 Question questions[MAX_QUESTIONS];
 int question_count = 0;
 
+/* Trim whitespace in-place: remove leading and trailing whitespace */
+static void trim_inplace(char *s) {
+    if (!s) return;
+    char *start = s;
+    while (*start && isspace((unsigned char)*start)) start++;
+    if (start != s) memmove(s, start, strlen(start) + 1);
+    size_t len = strlen(s);
+    while (len > 0 && isspace((unsigned char)s[len - 1])) {
+        s[len - 1] = '\0';
+        len--;
+    }
+}
 void load_questions(const char *filename) {
     FILE *f = fopen(filename, "r");
     if (!f) {
@@ -57,16 +70,7 @@ void load_questions(const char *filename) {
             dest->id = id->valueint;
             strncpy(dest->question, question->valuestring, MAX_QUESTION_TEXT - 1);
             dest->question[MAX_QUESTION_TEXT - 1] = '\0';
-            char *qtrim = trim(dest->question);
-            if (qtrim != dest->question) {
-                memmove(dest->question, qtrim, strlen(qtrim) + 1);
-            }
-            // Debuggin
-            if (strlen(dest->question) == 0) {
-                printf("[DEBUG] Loaded question id=%d has empty text\n", dest->id);
-            } else {
-                printf("[DEBUG] Loaded question id=%d text='%s'\n", dest->id, dest->question);
-            }
+            trim_inplace(dest->question);
             dest->correct_index = correct->valueint;
             
             if (strcmp(difficulty->valuestring, "facile") == 0) dest->difficulty = 0;
@@ -102,7 +106,6 @@ void load_questions(const char *filename) {
     }
     
     cJSON_Delete(root);
-    printf("Chargé %d questions\n", question_count);
 }
 
 int select_questions(Question *dest, int nb, int difficulty, const char *theme) {
