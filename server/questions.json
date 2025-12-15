@@ -269,6 +269,78 @@
       "correct": 1,
       "difficulty": "difficile",
       "themes": ["Informatique", "Algorithmes"]
+    },
+    {
+      "id": 31,
+      "question": "Quel est le plus long fleuve du monde ?",
+      "type": "text",
+      "answers": ["Nil", "Amazonie"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 32,
+      "question": "Qui a écrit 'Les Misérables' ?",
+      "type": "text",
+      "answers": ["Victor Hugo"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Littérature"]
+    },
+    {
+      "id": 33,
+      "question": "Quelle est la formule chimique de l'eau ?",
+      "type": "text",
+      "answers": ["H2O"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Science", "Chimie"]
+    },
+    {
+      "id": 34,
+      "question": "Qui a découvert la gravité ?",
+      "type": "text",
+      "answers": ["Isaac Newton"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Science", "Histoire"]
+    },
+    {
+      "id": 35,
+      "question": "Quel est le plus grand désert du monde ?",
+      "type": "text",
+      "answers": ["Sahara", "Antarctique"],
+      "correct": 1,
+      "difficulty": "facile",
+      "themes": ["Géographie"]
+    },
+    {
+      "id": 36,
+      "question": "Qui a peint 'La Nuit étoilée' ?",
+      "type": "text",
+      "answers": ["Vincent van Gogh"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Art"]
+    },
+    {
+      "id": 37,
+      "question": "Quel est l'élément chimique avec le symbole 'Fe' ?",
+      "type": "text",
+      "answers": ["Fer"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Science", "Chimie"]
+    },
+    {
+      "id": 38,
+      "question": "Qui a écrit 'Hamlet' ?",
+      "type": "text",
+      "answers": ["William Shakespeare"],
+      "correct": 0,
+      "difficulty": "facile",
+      "themes": ["Littérature"]
     }
   ]
 }

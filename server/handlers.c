@@ -757,9 +757,28 @@ void send_next_question(Session *s, int playerIndex) {
         char *end = start + strlen(start) - 1;
         while (end >= start && (*end == ' ' || *end == '\n' || *end == '\r' || *end == '\t')) { *end = '\0'; end--; }
         if (start[0] == '\0') {
-            strncpy(trimmed_question, "[Question vide]", MAX_QUESTION_TEXT - 1);
-            trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
-            start = trimmed_question;
+            int qid = q->id;
+            int found = 0;
+            for (int _i = 0; _i < question_count; _i++) {
+                if (questions[_i].id == qid && strlen(questions[_i].question) > 0) {
+                    strncpy(trimmed_question, questions[_i].question, MAX_QUESTION_TEXT - 1);
+                    trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+                    /* trim leading/trailing */
+                    char *sstart = trimmed_question;
+                    while (*sstart && (*sstart == ' ' || *sstart == '\n' || *sstart == '\r' || *sstart == '\t')) sstart++;
+                    char *send = sstart + strlen(sstart) - 1;
+                    while (send >= sstart && (*send == ' ' || *send == '\n' || *send == '\r' || *send == '\t')) { *send = '\0'; send--; }
+                    if (sstart != trimmed_question) memmove(trimmed_question, sstart, strlen(sstart) + 1);
+                    start = trimmed_question;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                strncpy(trimmed_question, "[Question vide]", MAX_QUESTION_TEXT - 1);
+                trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+                start = trimmed_question;
+            }
         }
         cJSON_AddStringToObject(msg, "question", start);
 
@@ -806,9 +825,27 @@ void send_next_question(Session *s, int playerIndex) {
         char *end = start + strlen(start) - 1;
         while (end >= start && (*end == ' ' || *end == '\n' || *end == '\r' || *end == '\t')) { *end = '\0'; end--; }
         if (start[0] == '\0') {
-            strncpy(trimmed_question, "[Question vide]", MAX_QUESTION_TEXT - 1);
-            trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
-            start = trimmed_question;
+            int qid = q->id;
+            int found = 0;
+            for (int _i = 0; _i < question_count; _i++) {
+                if (questions[_i].id == qid && strlen(questions[_i].question) > 0) {
+                    strncpy(trimmed_question, questions[_i].question, MAX_QUESTION_TEXT - 1);
+                    trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+                    char *sstart = trimmed_question;
+                    while (*sstart && (*sstart == ' ' || *sstart == '\n' || *sstart == '\r' || *sstart == '\t')) sstart++;
+                    char *send = sstart + strlen(sstart) - 1;
+                    while (send >= sstart && (*send == ' ' || *send == '\n' || *send == '\r' || *send == '\t')) { *send = '\0'; send--; }
+                    if (sstart != trimmed_question) memmove(trimmed_question, sstart, strlen(sstart) + 1);
+                    start = trimmed_question;
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) {
+                strncpy(trimmed_question, "[Question vide]", MAX_QUESTION_TEXT - 1);
+                trimmed_question[MAX_QUESTION_TEXT - 1] = '\0';
+                start = trimmed_question;
+            }
         }
         cJSON_AddStringToObject(msg, "question", start);
 
