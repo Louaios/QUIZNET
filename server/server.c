@@ -11,6 +11,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <signal.h>
 
 #define SERVER_NAME "QuizNet_Server_1"
 
@@ -21,6 +22,39 @@ cJSON *global_users = NULL;
 Session global_sessions[MAX_SESSIONS];
 int session_counter = 0;
 pthread_mutex_t sessions_lock = PTHREAD_MUTEX_INITIALIZER;
+static volatile sig_atomic_t stop_server = 0;
+static int server_sock = -1;
+// Gestion du signal d'arrêt
+// ============================================================================
+// ENVOI D'UN MESSAGE DE SHUTDOWN À TOUS LES CLIENTS CONNECTÉS
+// ============================================================================
+// Ctrl + C ou kill
+static void broadcast_shutdown_to_clients(void) {
+    cJSON *msg = cJSON_CreateObject();
+    cJSON_AddStringToObject(msg, "action", "server/shutdown");
+    cJSON_AddStringToObject(msg, "message", "Server stopping");
+
+    pthread_mutex_lock(&sessions_lock);
+    for (int i = 0; i < MAX_SESSIONS; i++) {
+        if (global_sessions[i].sessionId >= 0) {
+            for (int p = 0; p < global_sessions[i].playerCount; p++) {
+                send_json_to_socket(global_sessions[i].players[p].sock, msg);
+            }
+        }
+    }
+    pthread_mutex_unlock(&sessions_lock);
+
+    cJSON_Delete(msg);
+}
+
+static void handle_signal(int sig) {
+    (void)sig;
+    stop_server = 1;
+    broadcast_shutdown_to_clients();
+    if (server_sock >= 0) {
+        close(server_sock); // unblock accept
+    }
+}
 
 // ============================================================================
 // THREAD UDP : Découverte des serveurs par broadcast
@@ -214,6 +248,12 @@ void* client_handler(void *arg) {
 // FONCTION PRINCIPALE
 // ============================================================================
 int main(void) {
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = handle_signal;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
     pthread_mutex_lock(&sessions_lock);
     for (int i = 0; i < MAX_SESSIONS; i++) {
         global_sessions[i].sessionId = -1;
@@ -227,7 +267,7 @@ int main(void) {
     pthread_create(&udp_thread, NULL, udp_broadcast, NULL);
     pthread_detach(udp_thread);
     
-    int server_sock = socket(AF_INET, SOCK_STREAM, 0);
+    server_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (server_sock < 0) {
         perror("TCP socket");
         return 1;
@@ -256,7 +296,7 @@ int main(void) {
     
     log_info("Server started on TCP port %d", TCP_PORT);
     
-    while (1) {
+    while (!stop_server) {
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
         
@@ -265,6 +305,7 @@ int main(void) {
         
         if (*client_sock < 0) {
             free(client_sock);
+            if (stop_server) break;
             continue;
         }
         

@@ -128,6 +128,12 @@ class QuizNetClient:
         
         self.connected = False
         print("Thread de réception terminé")
+        # informer le GUI pour retourner à la découverte
+        if self.callback:
+            try:
+                self.callback({"action": "connection/closed"})
+            except Exception:
+                pass
     
     # ========================================================================
     # ENVOI D'UNE REQUÊTE AU SERVEUR

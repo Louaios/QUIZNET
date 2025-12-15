@@ -922,6 +922,10 @@ class QuizNetGUI:
                 except Exception:
                     pass
             self.root.after(0, lambda m=message: self.show_question(m))
+
+        elif action == 'server/shutdown' or action == 'connection/closed':
+            print("Server shutdown received; returning to discovery screen")
+            self.root.after(0, self.show_discovery_screen)
         
         elif action == 'question/results':
             # Résultats intermédiaires
