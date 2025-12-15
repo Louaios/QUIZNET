@@ -172,6 +172,7 @@ cJSON* handle_session_create(cJSON *request, char *username, int sock, int *sess
                 cJSON_AddStringToObject(response, "message", "session created");
                 cJSON_AddNumberToObject(response, "sessionId", new_session->sessionId);
                 cJSON_AddStringToObject(response, "mode", new_session->mode);
+                cJSON_AddNumberToObject(response, "timeLimit", new_session->timeLimit);
                 cJSON_AddBoolToObject(response, "isCreator", 1);
                 
                 if (strcmp(new_session->mode, "battle") == 0) {
@@ -266,6 +267,7 @@ cJSON* handle_session_join(cJSON *request, char *username, int sock, int *sessio
     cJSON_AddStringToObject(response, "message", "joined session");
     cJSON_AddNumberToObject(response, "sessionId", target_session->sessionId);
     cJSON_AddStringToObject(response, "mode", target_session->mode);
+    cJSON_AddNumberToObject(response, "timeLimit", target_session->timeLimit);
     cJSON_AddBoolToObject(response, "isCreator", 0);
     
     if (strcmp(target_session->mode, "battle") == 0) {
@@ -337,6 +339,7 @@ int handle_session_start(int session_id) {
     cJSON_AddStringToObject(start_msg, "action", "session/started");
     cJSON_AddStringToObject(start_msg, "statut", "200");
     cJSON_AddNumberToObject(start_msg, "countdown", 3);
+    cJSON_AddNumberToObject(start_msg, "timeLimit", current_session->timeLimit);
     
     log_info("Sending session/started to %d players", current_session->playerCount);
     
@@ -727,6 +730,7 @@ void send_next_question(Session *s, int playerIndex) {
         cJSON_AddStringToObject(msg, "action", "question/new");
         cJSON_AddNumberToObject(msg, "questionNum", idx + 1);
         cJSON_AddNumberToObject(msg, "totalQuestions", s->nbQuestions);
+        cJSON_AddNumberToObject(msg, "timeLimit", s->timeLimit);
         
         const char *type = (q->type == 0 ? "qcm" : (q->type == 1 ? "boolean" : "text"));
         cJSON_AddStringToObject(msg, "type", type);
@@ -791,6 +795,7 @@ void send_next_question(Session *s, int playerIndex) {
         cJSON_AddStringToObject(msg, "action", "question/new");
         cJSON_AddNumberToObject(msg, "questionNum", idx + 1);
         cJSON_AddNumberToObject(msg, "totalQuestions", s->nbQuestions);
+        cJSON_AddNumberToObject(msg, "timeLimit", s->timeLimit);
         
         const char *type = (q->type == 0 ? "qcm" : (q->type == 1 ? "boolean" : "text"));
         cJSON_AddStringToObject(msg, "type", type);
