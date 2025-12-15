@@ -497,6 +497,11 @@ class QuizNetGUI:
             tk.Label(lives_frame, text=f"Vies: {hearts}", 
                     font=("Arial", 12), bg="#ffebee").pack()
         
+        # synchronize timer from server-provided timeLimit if available
+        try:
+            self.time_limit = int(question_data.get('timeLimit', self.time_limit))
+        except Exception:
+            pass
         self.timer_label = tk.Label(header_frame, text=f"⏱️ {self.time_limit}s", 
                                     font=("Arial", 14, "bold"), fg="#f44336")
         self.timer_label.pack(side="right")
@@ -854,6 +859,12 @@ class QuizNetGUI:
                 self.jokers = message.get('jokers', {"fifty": 1, "skip": 1})
                 if 'lives' in message:
                     self.lives = message['lives']
+                # sync time limit from server response
+                if 'timeLimit' in message:
+                    try:
+                        self.time_limit = int(message.get('timeLimit', self.time_limit))
+                    except Exception:
+                        pass
                 self.root.after(0, lambda m=message: self.show_waiting_room(m))
             else:
                 msg = message.get('message', 'Erreur inconnue')
@@ -865,6 +876,12 @@ class QuizNetGUI:
                 self.jokers = message.get('jokers', {"fifty": 1, "skip": 1})
                 if 'lives' in message:
                     self.lives = message['lives']
+                # sync time limit from server response
+                if 'timeLimit' in message:
+                    try:
+                        self.time_limit = int(message.get('timeLimit', self.time_limit))
+                    except Exception:
+                        pass
                 self.root.after(0, lambda m=message: self.show_waiting_room(m))
             else:
                 msg = message.get('message', 'Impossible de rejoindre')
@@ -881,6 +898,11 @@ class QuizNetGUI:
         
         elif action == 'session/started':
             countdown = message.get('countdown', 3)
+            if 'timeLimit' in message:
+                try:
+                    self.time_limit = int(message.get('timeLimit', self.time_limit))
+                except Exception:
+                    pass
             print(f"Session démarrée ! Countdown: {countdown}")
             self.root.after(0, lambda c=countdown: self.show_countdown(c))
         
@@ -893,6 +915,12 @@ class QuizNetGUI:
                       "keys:", list(message.keys()))
             except Exception:
                 pass
+            # sync timer immediately from the question payload if provided
+            if 'timeLimit' in message:
+                try:
+                    self.time_limit = int(message.get('timeLimit', self.time_limit))
+                except Exception:
+                    pass
             self.root.after(0, lambda m=message: self.show_question(m))
         
         elif action == 'question/results':
